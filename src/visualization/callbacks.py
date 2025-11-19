@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import pandas as pd
 import base64
+import binascii
 import io
 
 from dash import Input, Output, State, no_update, dcc, html
@@ -375,7 +376,12 @@ def register_callbacks(app):
                                 "value": float(row.get("value", 0)),
                             }
                         )
-            except (UnicodeDecodeError, ValueError, pd.errors.ParserError) as e:
+            except (
+                UnicodeDecodeError,
+                ValueError,
+                pd.errors.ParserError,
+                binascii.Error,
+            ) as e:
                 logger.exception(f"Error parsing CSV file {filename}: {e}")
 
         # Handle manual entry
