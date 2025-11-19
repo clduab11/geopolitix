@@ -362,10 +362,9 @@ def register_callbacks(app):
 
         # Handle file upload
         if contents and filename:
-            _content_type, content_string = contents.split(",")
-            decoded = base64.b64decode(content_string)
-
             try:
+                _content_type, content_string = contents.split(",")
+                decoded = base64.b64decode(content_string)
                 if filename.strip() and "csv" in filename.lower():
                     df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
                     for _, row in df.iterrows():
