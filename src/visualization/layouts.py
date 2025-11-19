@@ -3,6 +3,14 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
+# Exposure type options for company exposure assessment
+EXPOSURE_TYPE_OPTIONS = [
+    {"label": "Manufacturing", "value": "manufacturing"},
+    {"label": "Supply Chain", "value": "supply_chain"},
+    {"label": "Market", "value": "market"},
+    {"label": "Headquarters", "value": "headquarters"},
+]
+
 
 def create_layout() -> html.Div:
     """
@@ -467,45 +475,10 @@ def create_exposure_tab() -> html.Div:
                                                     ),
                                                     dbc.InputGroup(
                                                         [
-                                                            dbc.InputGroupText(
-                                                                "Type"
-                                                            ),
+                                                            dbc.InputGroupText("Type"),
                                                             dcc.Dropdown(
                                                                 id="manual-type",
-                                                                options=[  # noqa: E501
-                                                                    {  # noqa: E501
-                                                                        "label": (  # noqa: E501
-                                                                            "Manufacturing"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                        "value": (  # noqa: E501
-                                                                            "manufacturing"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                    },  # noqa: E501
-                                                                    {  # noqa: E501
-                                                                        "label": (  # noqa: E501
-                                                                            "Supply Chain"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                        "value": (  # noqa: E501
-                                                                            "supply_chain"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                    },  # noqa: E501
-                                                                    {  # noqa: E501
-                                                                        "label": (  # noqa: E501
-                                                                            "Market"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                        "value": (  # noqa: E501
-                                                                            "market"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                    },  # noqa: E501
-                                                                    {  # noqa: E501
-                                                                        "label": (  # noqa: E501
-                                                                            "Headquarters"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                        "value": (  # noqa: E501
-                                                                            "headquarters"  # noqa: E501
-                                                                        ),  # noqa: E501
-                                                                    },  # noqa: E501
-                                                                ],  # noqa: E501
+                                                                options=EXPOSURE_TYPE_OPTIONS,  # noqa: E501
                                                                 style={"flex": 1},
                                                             ),
                                                         ],
