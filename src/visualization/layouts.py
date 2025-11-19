@@ -1,6 +1,5 @@
 """Dash layout components for the dashboard."""
 
-from typing import Any, Dict, List
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 

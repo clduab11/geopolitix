@@ -18,6 +18,7 @@ from src.data_sources.acled import ACLEDClient
 from src.risk_engine.scoring import RiskScorer, get_default_countries
 from src.utils.cache import clear_cache
 from src.utils.logger import get_logger
+from src.utils.transformers import country_to_iso
 
 logger = get_logger(__name__)
 
@@ -54,7 +55,6 @@ def update_all_data():
             newsapi.get_country_news(country)
 
             # World Bank uses ISO codes
-            from src.utils.transformers import country_to_iso
             iso = country_to_iso(country)
             worldbank.get_governance_indicators(iso)
 

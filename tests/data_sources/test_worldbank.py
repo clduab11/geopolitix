@@ -1,7 +1,6 @@
 """Tests for World Bank API client."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
 
 from src.data_sources.worldbank import WorldBankClient

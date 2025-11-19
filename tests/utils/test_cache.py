@@ -1,8 +1,5 @@
 """Tests for caching utilities."""
 
-import pytest
-import time
-
 from src.utils.cache import (
     cache_response,
     clear_cache,

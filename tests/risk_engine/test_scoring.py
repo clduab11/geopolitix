@@ -1,7 +1,6 @@
 """Tests for risk scoring algorithms."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
 
 from src.risk_engine.scoring import RiskScorer, get_default_countries

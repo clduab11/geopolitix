@@ -1,7 +1,7 @@
 """ACLED API integration for armed conflict data."""
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 import pandas as pd
 
 from config.api_endpoints import APIEndpoints

@@ -1,6 +1,5 @@
 """Tests for data transformers."""
 
-import pytest
 import pandas as pd
 
 from src.utils.transformers import (

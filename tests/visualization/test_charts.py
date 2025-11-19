@@ -1,6 +1,5 @@
 """Tests for chart components."""
 
-import pytest
 import pandas as pd
 import plotly.graph_objects as go
 

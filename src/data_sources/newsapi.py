@@ -1,7 +1,7 @@
 """NewsAPI integration for news aggregation and sentiment analysis."""
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from textblob import TextBlob
 
 from config.api_endpoints import APIEndpoints

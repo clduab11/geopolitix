@@ -1,8 +1,7 @@
 """GDELT Project API integration for global event data."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
-import pandas as pd
 
 from config.api_endpoints import APIEndpoints
 from src.data_sources.base import BaseAPIClient

@@ -198,8 +198,8 @@ class WorldBankClient(BaseAPIClient):
             for entry in response[1]:
                 if entry.get("region", {}).get("value") != "Aggregates":
                     countries.append({
-                        "id": entry.get("id"),
-                        "iso3": entry.get("iso2Code"),
+                        "id": entry.get("id"),  # This is the ISO-3 code
+                        "iso3": entry.get("id"),  # Use 'id' field which contains ISO-3 codes
                         "name": entry.get("name"),
                         "region": entry.get("region", {}).get("value"),
                         "income_level": entry.get("incomeLevel", {}).get("value"),

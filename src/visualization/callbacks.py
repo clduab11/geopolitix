@@ -1,13 +1,12 @@
 """Dash callback registrations."""
 
-from typing import Any, Dict, List, Tuple
 from datetime import datetime
 import json
 import pandas as pd
 import base64
 import io
 
-from dash import Input, Output, State, callback, no_update, dcc, html
+from dash import Input, Output, State, no_update, dcc, html
 import dash_bootstrap_components as dbc
 
 from src.risk_engine.scoring import RiskScorer, get_default_countries
@@ -19,11 +18,12 @@ from src.visualization.charts import (
     create_correlation_matrix,
     create_scenario_comparison,
     create_exposure_pie,
-    create_gauge_chart,
 )
 from src.visualization.layouts import create_summary_card, create_alert_item
-from src.utils.transformers import country_to_iso
 from config.risk_thresholds import RiskThresholds
+from src.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def register_callbacks(app):
@@ -345,8 +345,8 @@ def register_callbacks(app):
                             "type": row.get("type", ""),
                             "value": float(row.get("value", 0)),
                         })
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Error parsing CSV file {filename}: {e}")
 
         # Handle manual entry
         if n_clicks and country and loc_type and value:
