@@ -1,6 +1,5 @@
 """Tests for chart components."""
 
-import pytest
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -19,22 +18,26 @@ class TestCreateTrendChart:
 
     def test_creates_figure(self):
         """Test that function creates a Plotly figure."""
-        data = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=10),
-            "composite_score": [50 + i for i in range(10)],
-            "country": ["USA"] * 10,
-        })
+        data = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=10),
+                "composite_score": [50 + i for i in range(10)],
+                "country": ["USA"] * 10,
+            }
+        )
 
         fig = create_trend_chart(data)
         assert isinstance(fig, go.Figure)
 
     def test_has_threshold_lines(self):
         """Test that threshold lines are added."""
-        data = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=5),
-            "composite_score": [50, 60, 70, 80, 90],
-            "country": ["USA"] * 5,
-        })
+        data = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=5),
+                "composite_score": [50, 60, 70, 80, 90],
+                "country": ["USA"] * 5,
+            }
+        )
 
         fig = create_trend_chart(data)
         # Check for horizontal lines in layout
@@ -47,18 +50,14 @@ class TestCreateComparisonChart:
     def test_bar_chart(self, sample_risk_data):
         """Test bar chart creation."""
         fig = create_comparison_chart(
-            sample_risk_data,
-            ["United States", "China"],
-            chart_type="bar"
+            sample_risk_data, ["United States", "China"], chart_type="bar"
         )
         assert isinstance(fig, go.Figure)
 
     def test_radar_chart(self, sample_risk_data):
         """Test radar chart creation."""
         fig = create_comparison_chart(
-            sample_risk_data,
-            ["United States", "China"],
-            chart_type="radar"
+            sample_risk_data, ["United States", "China"], chart_type="radar"
         )
         assert isinstance(fig, go.Figure)
 

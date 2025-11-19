@@ -197,13 +197,17 @@ class WorldBankClient(BaseAPIClient):
             countries = []
             for entry in response[1]:
                 if entry.get("region", {}).get("value") != "Aggregates":
-                    countries.append({
-                        "id": entry.get("id"),
-                        "iso3": entry.get("iso2Code"),
-                        "name": entry.get("name"),
-                        "region": entry.get("region", {}).get("value"),
-                        "income_level": entry.get("incomeLevel", {}).get("value"),
-                    })
+                    countries.append(
+                        {
+                            "id": entry.get("id"),  # This is the ISO-3 code
+                            "iso3": entry.get(
+                                "id"
+                            ),  # Use 'id' field which contains ISO-3 codes
+                            "name": entry.get("name"),
+                            "region": entry.get("region", {}).get("value"),
+                            "income_level": entry.get("incomeLevel", {}).get("value"),
+                        }
+                    )
             return countries
 
         return []
@@ -237,10 +241,12 @@ class WorldBankClient(BaseAPIClient):
         records = []
         for entry in data:
             if entry.get("value") is not None:
-                records.append({
-                    "year": int(entry.get("date")),
-                    "value": float(entry.get("value")),
-                })
+                records.append(
+                    {
+                        "year": int(entry.get("date")),
+                        "value": float(entry.get("value")),
+                    }
+                )
 
         df = pd.DataFrame(records)
         if not df.empty:

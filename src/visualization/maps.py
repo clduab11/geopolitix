@@ -1,7 +1,5 @@
 """Choropleth map visualizations."""
 
-from typing import Any, Dict, List, Optional
-import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 
@@ -49,9 +47,7 @@ def create_choropleth_map(
                 ticktext=["Low", "Moderate-Low", "Moderate", "High", "Critical"],
             ),
             hovertemplate=(
-                "<b>%{text}</b><br>"
-                "Risk Score: %{z:.1f}<br>"
-                "<extra></extra>"
+                "<b>%{text}</b><br>" "Risk Score: %{z:.1f}<br>" "<extra></extra>"
             ),
         )
     )
@@ -153,12 +149,8 @@ def create_risk_bubble_map(
 
     # Add coordinates
     data = data.copy()
-    data["lat"] = data["country"].apply(
-        lambda x: country_coords.get(x, (0, 0))[0]
-    )
-    data["lon"] = data["country"].apply(
-        lambda x: country_coords.get(x, (0, 0))[1]
-    )
+    data["lat"] = data["country"].apply(lambda x: country_coords.get(x, (0, 0))[0])
+    data["lon"] = data["country"].apply(lambda x: country_coords.get(x, (0, 0))[1])
 
     # Color mapping
     color_map = {

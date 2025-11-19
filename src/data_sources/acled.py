@@ -1,7 +1,7 @@
 """ACLED API integration for armed conflict data."""
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 import pandas as pd
 
 from config.api_endpoints import APIEndpoints
@@ -73,7 +73,9 @@ class ACLEDClient(BaseAPIClient):
                 "country": country,
                 "event_count": len(events),
                 "events": events,
-                "date_range": f"{from_date} to {datetime.utcnow().strftime('%Y-%m-%d')}",
+                "date_range": (
+                    f"{from_date} to {datetime.utcnow().strftime('%Y-%m-%d')}"
+                ),
                 "query_time": datetime.utcnow().isoformat(),
             }
 
@@ -239,14 +241,16 @@ class ACLEDClient(BaseAPIClient):
                     fatalities = int(event.get("fatalities", 0))
 
                     if fatalities >= min_fatalities:
-                        alerts.append({
-                            "country": country,
-                            "event_date": event.get("event_date"),
-                            "event_type": event.get("event_type"),
-                            "fatalities": fatalities,
-                            "location": event.get("location"),
-                            "notes": event.get("notes", "")[:200],
-                        })
+                        alerts.append(
+                            {
+                                "country": country,
+                                "event_date": event.get("event_date"),
+                                "event_type": event.get("event_type"),
+                                "fatalities": fatalities,
+                                "location": event.get("location"),
+                                "notes": event.get("notes", "")[:200],
+                            }
+                        )
 
         # Sort by date descending
         alerts.sort(key=lambda x: x.get("event_date", ""), reverse=True)
@@ -283,10 +287,14 @@ class ACLEDClient(BaseAPIClient):
         df["month"] = df["event_date"].dt.to_period("M")
         df["fatalities"] = pd.to_numeric(df["fatalities"], errors="coerce").fillna(0)
 
-        monthly = df.groupby("month").agg(
-            event_count=("event_id", "count"),
-            fatalities=("fatalities", "sum"),
-        ).reset_index()
+        monthly = (
+            df.groupby("month")
+            .agg(
+                event_count=("event_id", "count"),
+                fatalities=("fatalities", "sum"),
+            )
+            .reset_index()
+        )
 
         monthly["month"] = monthly["month"].astype(str)
 

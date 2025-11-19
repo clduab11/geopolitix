@@ -1,10 +1,11 @@
 """NewsAPI integration for news aggregation and sentiment analysis."""
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 from textblob import TextBlob
 
 from config.api_endpoints import APIEndpoints
+from config.risk_thresholds import RiskThresholds
 from config.settings import Settings
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
@@ -187,19 +188,15 @@ class NewsAPIClient(BaseAPIClient):
 
         articles = news_data["articles"]
 
-        polarities = [
-            a["sentiment"]["polarity"]
-            for a in articles
-            if "sentiment" in a
-        ]
+        polarities = [a["sentiment"]["polarity"] for a in articles if "sentiment" in a]
         subjectivities = [
-            a["sentiment"]["subjectivity"]
-            for a in articles
-            if "sentiment" in a
+            a["sentiment"]["subjectivity"] for a in articles if "sentiment" in a
         ]
 
         avg_polarity = sum(polarities) / len(polarities) if polarities else 0
-        avg_subjectivity = sum(subjectivities) / len(subjectivities) if subjectivities else 0
+        avg_subjectivity = (
+            sum(subjectivities) / len(subjectivities) if subjectivities else 0
+        )
 
         # Convert sentiment to risk score (negative sentiment = higher risk)
         # Polarity ranges from -1 to 1, convert to 0-100 risk
@@ -216,7 +213,7 @@ class NewsAPIClient(BaseAPIClient):
     def get_risk_alerts(
         self,
         countries: List[str],
-        threshold: float = -0.3,
+        threshold: float = None,
     ) -> List[Dict[str, Any]]:
         """
         Get alerts for countries with negative news sentiment.
@@ -228,20 +225,25 @@ class NewsAPIClient(BaseAPIClient):
         Returns:
             List of alert dictionaries
         """
+        if threshold is None:
+            threshold = RiskThresholds.SENTIMENT_NEGATIVE_THRESHOLD
+
         alerts = []
 
         for country in countries:
             sentiment = self.calculate_news_sentiment_score(country)
 
             if sentiment["average_polarity"] < threshold:
-                alerts.append({
-                    "country": country,
-                    "polarity": sentiment["average_polarity"],
-                    "article_count": sentiment["article_count"],
-                    "risk_score": sentiment["risk_score"],
-                    "alert_type": "negative_sentiment",
-                    "timestamp": datetime.utcnow().isoformat(),
-                })
+                alerts.append(
+                    {
+                        "country": country,
+                        "polarity": sentiment["average_polarity"],
+                        "article_count": sentiment["article_count"],
+                        "risk_score": sentiment["risk_score"],
+                        "alert_type": "negative_sentiment",
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
 
         # Sort by risk score descending
         alerts.sort(key=lambda x: x["risk_score"], reverse=True)

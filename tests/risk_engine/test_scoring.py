@@ -1,7 +1,6 @@
 """Tests for risk scoring algorithms."""
 
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 import pandas as pd
 
 from src.risk_engine.scoring import RiskScorer, get_default_countries
@@ -96,15 +95,17 @@ class TestRiskScorer:
     def test_generate_alerts_no_high_risk(self):
         """Test alert generation with no high risk countries."""
         scorer = RiskScorer()
-        data = pd.DataFrame({
-            "country": ["A", "B"],
-            "composite_score": [30.0, 40.0],
-            "risk_level": ["moderate", "moderate"],
-            "political": [30.0, 40.0],
-            "economic": [30.0, 40.0],
-            "security": [30.0, 40.0],
-            "trade": [30.0, 40.0],
-        })
+        data = pd.DataFrame(
+            {
+                "country": ["A", "B"],
+                "composite_score": [30.0, 40.0],
+                "risk_level": ["moderate", "moderate"],
+                "political": [30.0, 40.0],
+                "economic": [30.0, 40.0],
+                "security": [30.0, 40.0],
+                "trade": [30.0, 40.0],
+            }
+        )
 
         alerts = scorer.generate_alerts(data, threshold=70)
         assert len(alerts) == 0
@@ -112,12 +113,14 @@ class TestRiskScorer:
     def test_get_primary_factor(self):
         """Test primary factor identification."""
         scorer = RiskScorer()
-        row = pd.Series({
-            "political": 30.0,
-            "economic": 60.0,
-            "security": 80.0,
-            "trade": 40.0,
-        })
+        row = pd.Series(
+            {
+                "political": 30.0,
+                "economic": 60.0,
+                "security": 80.0,
+                "trade": 40.0,
+            }
+        )
 
         result = scorer._get_primary_factor(row)
         assert result == "security"

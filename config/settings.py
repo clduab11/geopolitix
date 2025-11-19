@@ -10,7 +10,7 @@ class Settings:
     # Application
     DEBUG: bool = config("DEBUG", default=False, cast=bool)
     PORT: int = config("PORT", default=8050, cast=int)
-    HOST: str = config("HOST", default="0.0.0.0")
+    HOST: str = config("HOST", default="127.0.0.1")
 
     # API Keys
     NEWSAPI_KEY: str = config("NEWSAPI_KEY", default="")

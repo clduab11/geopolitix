@@ -1,8 +1,5 @@
 """Tests for caching utilities."""
 
-import pytest
-import time
-
 from src.utils.cache import (
     cache_response,
     clear_cache,
@@ -36,6 +33,7 @@ class TestCacheResponse:
 
     def test_different_args_not_cached(self):
         """Test that different arguments don't share cache."""
+        clear_cache()  # Clear any existing cache entries
         call_count = 0
 
         @cache_response()
@@ -55,6 +53,7 @@ class TestClearCache:
 
     def test_clear_cache(self):
         """Test that clear_cache clears all cached items."""
+
         @cache_response()
         def test_func(x):
             return x * 2

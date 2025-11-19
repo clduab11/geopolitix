@@ -60,12 +60,14 @@ class TestWeightManager:
         manager = WeightManager()
 
         # Change weights
-        manager.set_weights({
-            "political": 0.4,
-            "economic": 0.3,
-            "security": 0.2,
-            "trade": 0.1,
-        })
+        manager.set_weights(
+            {
+                "political": 0.4,
+                "economic": 0.3,
+                "security": 0.2,
+                "trade": 0.1,
+            }
+        )
 
         # Reset
         manager.reset_weights()
@@ -134,12 +136,7 @@ class TestWeightManager:
         result = manager.calculate_weighted_score(scores)
 
         # Manual calculation with default weights
-        expected = (
-            40 * 0.25 +
-            60 * 0.25 +
-            80 * 0.30 +
-            50 * 0.20
-        )
+        expected = 40 * 0.25 + 60 * 0.25 + 80 * 0.30 + 50 * 0.20
         assert abs(result - expected) < 0.1
 
     def test_calculate_weighted_score_custom(self):

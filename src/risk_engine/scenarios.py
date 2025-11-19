@@ -96,8 +96,9 @@ class ScenarioModeler:
         Returns:
             Scenario dictionary
         """
+        timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
         scenario = {
-            "id": f"scenario_{len(self.scenarios) + 1}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            "id": f"scenario_{len(self.scenarios) + 1}_{timestamp}",
             "name": name,
             "description": description,
             "affected_countries": affected_countries,
@@ -202,14 +203,10 @@ class ScenarioModeler:
             # Calculate new composite score
             weights = RiskThresholds.FACTOR_WEIGHTS
             new_composite = sum(
-                projected.get(f, current.get(f, 50)) * w
-                for f, w in weights.items()
+                projected.get(f, current.get(f, 50)) * w for f, w in weights.items()
             )
 
-            current_composite = sum(
-                current.get(f, 50) * w
-                for f, w in weights.items()
-            )
+            current_composite = sum(current.get(f, 50) * w for f, w in weights.items())
 
             results[country] = {
                 "current_scores": current,

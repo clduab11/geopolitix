@@ -9,9 +9,9 @@ from src.visualization.charts import (
 )
 
 __all__ = [
-    "create_layout",
     "create_choropleth_map",
-    "create_trend_chart",
     "create_comparison_chart",
     "create_correlation_matrix",
+    "create_layout",
+    "create_trend_chart",
 ]
