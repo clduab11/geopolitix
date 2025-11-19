@@ -157,7 +157,10 @@ class TestScenarioModeler:
         comparison = modeler.compare_scenarios([scenario1, scenario2], current_scores)
 
         assert len(comparison["scenarios"]) == 2
-        assert comparison["scenarios"][1]["total_impact"] > comparison["scenarios"][0]["total_impact"]
+        assert (
+            comparison["scenarios"][1]["total_impact"]
+            > comparison["scenarios"][0]["total_impact"]
+        )
 
     def test_export_scenario(self):
         """Test scenario export."""

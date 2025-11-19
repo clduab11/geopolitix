@@ -16,27 +16,27 @@ class RiskThresholds:
 
     # Risk Level Colors for visualization
     RISK_COLORS: Dict[str, str] = {
-        "low": "#2ecc71",       # Green
+        "low": "#2ecc71",  # Green
         "moderate": "#f39c12",  # Orange
-        "high": "#e74c3c",      # Red
+        "high": "#e74c3c",  # Red
         "critical": "#8e44ad",  # Purple
     }
 
     # Color scale for choropleth (continuous)
     CHOROPLETH_COLORSCALE = [
-        [0.0, "#2ecc71"],   # Low - Green
+        [0.0, "#2ecc71"],  # Low - Green
         [0.25, "#f1c40f"],  # Moderate-Low - Yellow
-        [0.5, "#f39c12"],   # Moderate - Orange
+        [0.5, "#f39c12"],  # Moderate - Orange
         [0.75, "#e74c3c"],  # High - Red
-        [1.0, "#8e44ad"],   # Critical - Purple
+        [1.0, "#8e44ad"],  # Critical - Purple
     ]
 
     # Factor Weights for Composite Risk Score
     FACTOR_WEIGHTS: Dict[str, float] = {
-        "political": 0.25,   # Political stability
-        "economic": 0.25,    # Economic risk
-        "security": 0.30,    # Security/conflict
-        "trade": 0.20,       # Trade relations
+        "political": 0.25,  # Political stability
+        "economic": 0.25,  # Economic risk
+        "security": 0.30,  # Security/conflict
+        "trade": 0.20,  # Trade relations
     }
 
     # Sub-factor weights within each category

@@ -38,7 +38,7 @@ class GDELTClient(BaseAPIClient):
         """
         # Build GDELT query
         query = f'"{country}" sourcelang:eng'
-        
+
         # Convert days to hours for timespan parameter
         timespan_hours = days * 24
 
@@ -96,7 +96,7 @@ class GDELTClient(BaseAPIClient):
         ]
 
         query = f'"{country}" ({" OR ".join(conflict_terms)}) sourcelang:eng'
-        
+
         # Convert days to hours for timespan parameter
         timespan_hours = days * 24
 
@@ -115,11 +115,7 @@ class GDELTClient(BaseAPIClient):
             articles = response["articles"]
 
             # Calculate average tone (negative = more conflict)
-            tones = [
-                float(a.get("tone", 0))
-                for a in articles
-                if "tone" in a
-            ]
+            tones = [float(a.get("tone", 0)) for a in articles if "tone" in a]
             avg_tone = sum(tones) / len(tones) if tones else 0
 
             return {
@@ -255,11 +251,13 @@ class GDELTClient(BaseAPIClient):
         for topic in topics:
             sentiment = self.get_sentiment_analysis(country, topic)
             if sentiment and sentiment.get("total_articles", 0) > 0:
-                results.append({
-                    "topic": topic,
-                    "article_count": sentiment["total_articles"],
-                    "sentiment_ratio": sentiment["sentiment_ratio"],
-                })
+                results.append(
+                    {
+                        "topic": topic,
+                        "article_count": sentiment["total_articles"],
+                        "sentiment_ratio": sentiment["sentiment_ratio"],
+                    }
+                )
 
         # Sort by article count
         results.sort(key=lambda x: x["article_count"], reverse=True)

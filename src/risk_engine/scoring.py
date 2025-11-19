@@ -152,16 +152,18 @@ class RiskScorer:
         for country in countries:
             try:
                 score_data = self.calculate_composite_score(country)
-                results.append({
-                    "country": score_data["country"],
-                    "iso_code": score_data["iso_code"],
-                    "composite_score": score_data["composite_score"],
-                    "risk_level": score_data["risk_level"],
-                    "political": score_data["factors"]["political"],
-                    "economic": score_data["factors"]["economic"],
-                    "security": score_data["factors"]["security"],
-                    "trade": score_data["factors"]["trade"],
-                })
+                results.append(
+                    {
+                        "country": score_data["country"],
+                        "iso_code": score_data["iso_code"],
+                        "composite_score": score_data["composite_score"],
+                        "risk_level": score_data["risk_level"],
+                        "political": score_data["factors"]["political"],
+                        "economic": score_data["factors"]["economic"],
+                        "security": score_data["factors"]["security"],
+                        "trade": score_data["factors"]["trade"],
+                    }
+                )
             except Exception as e:
                 logger.error(f"Error scoring {country}: {e}")
                 continue
@@ -195,8 +197,12 @@ class RiskScorer:
             }
 
         # Calculate changes
-        change_7d = current_score - historical_scores[-1] if len(historical_scores) >= 1 else 0
-        change_30d = current_score - historical_scores[0] if len(historical_scores) >= 4 else 0
+        change_7d = (
+            current_score - historical_scores[-1] if len(historical_scores) >= 1 else 0
+        )
+        change_30d = (
+            current_score - historical_scores[0] if len(historical_scores) >= 4 else 0
+        )
 
         # Determine trend
         if change_30d > 5:
@@ -234,13 +240,15 @@ class RiskScorer:
 
         for _, row in scores_df.iterrows():
             if row["composite_score"] >= threshold:
-                alerts.append({
-                    "country": row["country"],
-                    "score": row["composite_score"],
-                    "risk_level": row["risk_level"],
-                    "primary_factor": self._get_primary_factor(row),
-                    "timestamp": datetime.utcnow().isoformat(),
-                })
+                alerts.append(
+                    {
+                        "country": row["country"],
+                        "score": row["composite_score"],
+                        "risk_level": row["risk_level"],
+                        "primary_factor": self._get_primary_factor(row),
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
 
         # Sort by score descending
         alerts.sort(key=lambda x: x["score"], reverse=True)

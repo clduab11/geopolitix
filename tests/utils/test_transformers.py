@@ -100,21 +100,25 @@ class TestAggregateRiskScores:
 
     def test_simple_average(self):
         """Test simple average without weights."""
-        df = pd.DataFrame({
-            "country": ["A", "B", "C"],
-            "risk_score": [40, 50, 60],
-        })
+        df = pd.DataFrame(
+            {
+                "country": ["A", "B", "C"],
+                "risk_score": [40, 50, 60],
+            }
+        )
 
         result = aggregate_risk_scores(df)
         assert result == 50.0
 
     def test_weighted_average(self):
         """Test weighted average."""
-        df = pd.DataFrame({
-            "country": ["A", "B"],
-            "risk_score": [40, 60],
-            "weight": [0.3, 0.7],
-        })
+        df = pd.DataFrame(
+            {
+                "country": ["A", "B"],
+                "risk_score": [40, 60],
+                "weight": [0.3, 0.7],
+            }
+        )
 
         result = aggregate_risk_scores(df, "weight")
         expected = (40 * 0.3 + 60 * 0.7) / 1.0

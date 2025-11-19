@@ -251,9 +251,7 @@ def normalize_country_name(name: str) -> str:
     return name_mappings.get(normalized, name.title())
 
 
-def calculate_risk_change(
-    current: float, previous: float
-) -> Dict[str, float]:
+def calculate_risk_change(current: float, previous: float) -> Dict[str, float]:
     """
     Calculate risk score change metrics.
 
@@ -273,7 +271,11 @@ def calculate_risk_change(
     return {
         "absolute_change": round(absolute_change, 2),
         "percentage_change": round(percentage_change, 2),
-        "direction": "increase" if absolute_change > 0 else "decrease" if absolute_change < 0 else "stable",
+        "direction": (
+            "increase"
+            if absolute_change > 0
+            else "decrease" if absolute_change < 0 else "stable"
+        ),
     }
 
 

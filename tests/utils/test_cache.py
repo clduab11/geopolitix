@@ -52,6 +52,7 @@ class TestClearCache:
 
     def test_clear_cache(self):
         """Test that clear_cache clears all cached items."""
+
         @cache_response()
         def test_func(x):
             return x * 2

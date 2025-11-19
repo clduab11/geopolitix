@@ -8,16 +8,18 @@ from unittest.mock import MagicMock, patch
 @pytest.fixture
 def sample_risk_data():
     """Sample risk score data for testing."""
-    return pd.DataFrame({
-        "country": ["United States", "China", "Russia", "Germany", "Brazil"],
-        "iso_code": ["USA", "CHN", "RUS", "DEU", "BRA"],
-        "composite_score": [35.5, 62.3, 78.1, 28.4, 55.2],
-        "risk_level": ["moderate", "high", "critical", "moderate", "high"],
-        "political": [30.0, 55.0, 75.0, 25.0, 50.0],
-        "economic": [35.0, 60.0, 80.0, 30.0, 55.0],
-        "security": [40.0, 70.0, 85.0, 28.0, 60.0],
-        "trade": [37.0, 64.0, 72.0, 30.0, 56.0],
-    })
+    return pd.DataFrame(
+        {
+            "country": ["United States", "China", "Russia", "Germany", "Brazil"],
+            "iso_code": ["USA", "CHN", "RUS", "DEU", "BRA"],
+            "composite_score": [35.5, 62.3, 78.1, 28.4, 55.2],
+            "risk_level": ["moderate", "high", "critical", "moderate", "high"],
+            "political": [30.0, 55.0, 75.0, 25.0, 50.0],
+            "economic": [35.0, 60.0, 80.0, 30.0, 55.0],
+            "security": [40.0, 70.0, 85.0, 28.0, 60.0],
+            "trade": [37.0, 64.0, 72.0, 30.0, 56.0],
+        }
+    )
 
 
 @pytest.fixture

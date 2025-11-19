@@ -67,8 +67,7 @@ def register_callbacks(app):
 
         # Country options
         country_options = [
-            {"label": c, "value": c}
-            for c in scores_df["country"].tolist()
+            {"label": c, "value": c} for c in scores_df["country"].tolist()
         ]
 
         return fig, store_data, last_updated, country_options, country_options
@@ -93,26 +92,39 @@ def register_callbacks(app):
         high_risk = len(df[df["composite_score"] >= 70])
         critical = len(df[df["composite_score"] >= 85])
 
-        summary_cards = dbc.Row([
-            dbc.Col(create_summary_card(
-                "Average Risk",
-                f"{avg_score:.1f}",
-                "primary",
-            ), width=4),
-            dbc.Col(create_summary_card(
-                "High Risk",
-                str(high_risk),
-                "warning",
-            ), width=4),
-            dbc.Col(create_summary_card(
-                "Critical",
-                str(critical),
-                "danger",
-            ), width=4),
-        ])
+        summary_cards = dbc.Row(
+            [
+                dbc.Col(
+                    create_summary_card(
+                        "Average Risk",
+                        f"{avg_score:.1f}",
+                        "primary",
+                    ),
+                    width=4,
+                ),
+                dbc.Col(
+                    create_summary_card(
+                        "High Risk",
+                        str(high_risk),
+                        "warning",
+                    ),
+                    width=4,
+                ),
+                dbc.Col(
+                    create_summary_card(
+                        "Critical",
+                        str(critical),
+                        "danger",
+                    ),
+                    width=4,
+                ),
+            ]
+        )
 
         # Alert feed
-        alerts = scorer.generate_alerts(df, threshold=RiskThresholds.ALERT_THRESHOLD_ABSOLUTE)
+        alerts = scorer.generate_alerts(
+            df, threshold=RiskThresholds.ALERT_THRESHOLD_ABSOLUTE
+        )
         alert_items = []
         for alert in alerts[:5]:
             alert_items.append(
@@ -133,15 +145,17 @@ def register_callbacks(app):
         for _, row in top_risk.iterrows():
             color = RiskThresholds.get_risk_color(row["composite_score"])
             risk_list.append(
-                html.Div([
-                    html.Strong(row["country"]),
-                    dbc.Badge(
-                        f"{row['composite_score']:.1f}",
-                        style={"backgroundColor": color},
-                        className="float-end",
-                    ),
-                    html.Hr(),
-                ])
+                html.Div(
+                    [
+                        html.Strong(row["country"]),
+                        dbc.Badge(
+                            f"{row['composite_score']:.1f}",
+                            style={"backgroundColor": color},
+                            className="float-end",
+                        ),
+                        html.Hr(),
+                    ]
+                )
             )
 
         return summary_cards, alert_items, risk_list
@@ -177,11 +191,14 @@ def register_callbacks(app):
         trend_data = []
         for _, row in df.iterrows():
             for i in range(time_range):
-                trend_data.append({
-                    "country": row["country"],
-                    "date": pd.Timestamp.now() - pd.Timedelta(days=time_range - i),
-                    "composite_score": row["composite_score"] + (i - time_range/2) * 0.5,
-                })
+                trend_data.append(
+                    {
+                        "country": row["country"],
+                        "date": pd.Timestamp.now() - pd.Timedelta(days=time_range - i),
+                        "composite_score": row["composite_score"]
+                        + (i - time_range / 2) * 0.5,
+                    }
+                )
 
         trend_df = pd.DataFrame(trend_data)
         trend_fig = create_trend_chart(trend_df)
@@ -262,21 +279,32 @@ def register_callbacks(app):
             color = "danger" if change > 10 else "warning" if change > 5 else "success"
 
             results.append(
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5(country),
-                        html.P([
-                            "Current: ",
-                            html.Strong(f"{impact_data['current_composite']:.1f}"),
-                            " → Projected: ",
-                            html.Strong(f"{impact_data['projected_composite']:.1f}"),
-                        ]),
-                        dbc.Badge(
-                            f"+{change:.1f}" if change > 0 else f"{change:.1f}",
-                            color=color,
+                dbc.Card(
+                    [
+                        dbc.CardBody(
+                            [
+                                html.H5(country),
+                                html.P(
+                                    [
+                                        "Current: ",
+                                        html.Strong(
+                                            f"{impact_data['current_composite']:.1f}"
+                                        ),
+                                        " → Projected: ",
+                                        html.Strong(
+                                            f"{impact_data['projected_composite']:.1f}"
+                                        ),
+                                    ]
+                                ),
+                                dbc.Badge(
+                                    f"+{change:.1f}" if change > 0 else f"{change:.1f}",
+                                    color=color,
+                                ),
+                            ]
                         ),
-                    ]),
-                ], className="mb-2")
+                    ],
+                    className="mb-2",
+                )
             )
 
         # Create comparison chart for first country
@@ -340,32 +368,40 @@ def register_callbacks(app):
                 if "csv" in filename:
                     df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
                     for _, row in df.iterrows():
-                        exposure_data.append({
-                            "country": row.get("country", ""),
-                            "type": row.get("type", ""),
-                            "value": float(row.get("value", 0)),
-                        })
+                        exposure_data.append(
+                            {
+                                "country": row.get("country", ""),
+                                "type": row.get("type", ""),
+                                "value": float(row.get("value", 0)),
+                            }
+                        )
             except Exception as e:
                 logger.error(f"Error parsing CSV file {filename}: {e}")
 
         # Handle manual entry
         if n_clicks and country and loc_type and value:
-            exposure_data.append({
-                "country": country,
-                "type": loc_type,
-                "value": float(value),
-            })
+            exposure_data.append(
+                {
+                    "country": country,
+                    "type": loc_type,
+                    "value": float(value),
+                }
+            )
 
         # Build list display
         list_items = []
         for i, loc in enumerate(exposure_data):
             list_items.append(
-                html.Div([
-                    html.Strong(loc["country"]),
-                    html.Span(f" - {loc['type']}"),
-                    dbc.Badge(f"${loc['value']}M", color="secondary", className="ms-2"),
-                    html.Hr(),
-                ])
+                html.Div(
+                    [
+                        html.Strong(loc["country"]),
+                        html.Span(f" - {loc['type']}"),
+                        dbc.Badge(
+                            f"${loc['value']}M", color="secondary", className="ms-2"
+                        ),
+                        html.Hr(),
+                    ]
+                )
             )
 
         if not list_items:
@@ -411,30 +447,47 @@ def register_callbacks(app):
             weight = loc["value"] / total_value if total_value > 0 else 0
             weighted_risk += risk_score * weight
 
-            location_risks.append({
-                "country": loc["country"],
-                "type": loc["type"],
-                "value": loc["value"],
-                "risk_score": risk_score,
-                "weighted_risk": risk_score * weight,
-            })
+            location_risks.append(
+                {
+                    "country": loc["country"],
+                    "type": loc["type"],
+                    "value": loc["value"],
+                    "risk_score": risk_score,
+                    "weighted_risk": risk_score * weight,
+                }
+            )
 
         # Summary
-        summary = dbc.Row([
-            dbc.Col([
-                create_summary_card("Total Exposure", f"${total_value:.1f}M", "primary"),
-            ], width=4),
-            dbc.Col([
-                create_summary_card("Weighted Risk", f"{weighted_risk:.1f}", "warning"),
-            ], width=4),
-            dbc.Col([
-                create_summary_card(
-                    "Risk Level",
-                    RiskThresholds.get_risk_level(weighted_risk).upper(),
-                    "danger" if weighted_risk > 70 else "warning",
+        summary = dbc.Row(
+            [
+                dbc.Col(
+                    [
+                        create_summary_card(
+                            "Total Exposure", f"${total_value:.1f}M", "primary"
+                        ),
+                    ],
+                    width=4,
                 ),
-            ], width=4),
-        ])
+                dbc.Col(
+                    [
+                        create_summary_card(
+                            "Weighted Risk", f"{weighted_risk:.1f}", "warning"
+                        ),
+                    ],
+                    width=4,
+                ),
+                dbc.Col(
+                    [
+                        create_summary_card(
+                            "Risk Level",
+                            RiskThresholds.get_risk_level(weighted_risk).upper(),
+                            "danger" if weighted_risk > 70 else "warning",
+                        ),
+                    ],
+                    width=4,
+                ),
+            ]
+        )
 
         # Pie chart by type
         type_exposure = exposure_df.groupby("type")["value"].sum().to_dict()
@@ -444,6 +497,7 @@ def register_callbacks(app):
         loc_df = pd.DataFrame(location_risks)
         if not loc_df.empty:
             import plotly.express as px
+
             bar_fig = px.bar(
                 loc_df,
                 x="country",
@@ -469,10 +523,13 @@ def register_callbacks(app):
                 color = "success"
 
             actions.append(
-                dbc.Alert([
-                    html.Strong(loc["country"]),
-                    f" ({loc['type']}): {action}",
-                ], color=color)
+                dbc.Alert(
+                    [
+                        html.Strong(loc["country"]),
+                        f" ({loc['type']}): {action}",
+                    ],
+                    color=color,
+                )
             )
 
         return summary, pie_fig, bar_fig, actions

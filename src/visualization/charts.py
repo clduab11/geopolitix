@@ -1,6 +1,6 @@
 """Chart components for risk analytics."""
 
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
