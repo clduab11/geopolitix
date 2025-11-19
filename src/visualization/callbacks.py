@@ -8,6 +8,7 @@ import io
 
 from dash import Input, Output, State, no_update, dcc, html
 import dash_bootstrap_components as dbc
+import plotly.express as px
 
 from src.risk_engine.scoring import RiskScorer, get_default_countries
 from src.risk_engine.scenarios import ScenarioModeler
@@ -360,12 +361,12 @@ def register_callbacks(app):
         exposure_data = current_data or []
 
         # Handle file upload
-        if contents:
-            content_type, content_string = contents.split(",")
+        if contents and filename:
+            _content_type, content_string = contents.split(",")
             decoded = base64.b64decode(content_string)
 
             try:
-                if "csv" in filename:
+                if filename.strip() and "csv" in filename.lower():
                     df = pd.read_csv(io.StringIO(decoded.decode("utf-8")))
                     for _, row in df.iterrows():
                         exposure_data.append(
@@ -375,8 +376,8 @@ def register_callbacks(app):
                                 "value": float(row.get("value", 0)),
                             }
                         )
-            except Exception as e:
-                logger.error(f"Error parsing CSV file {filename}: {e}")
+            except (UnicodeDecodeError, ValueError, pd.errors.ParserError) as e:
+                logger.exception(f"Error parsing CSV file {filename}: {e}")
 
         # Handle manual entry
         if n_clicks and country and loc_type and value:
@@ -390,7 +391,7 @@ def register_callbacks(app):
 
         # Build list display
         list_items = []
-        for i, loc in enumerate(exposure_data):
+        for loc in exposure_data:
             list_items.append(
                 html.Div(
                     [
@@ -496,8 +497,6 @@ def register_callbacks(app):
         # Bar chart by location risk
         loc_df = pd.DataFrame(location_risks)
         if not loc_df.empty:
-            import plotly.express as px
-
             bar_fig = px.bar(
                 loc_df,
                 x="country",

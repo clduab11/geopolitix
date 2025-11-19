@@ -13,6 +13,22 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 
+def safe_int(value: Any) -> int:
+    """
+    Safely convert a value to int, returning 0 for non-numeric values.
+
+    Args:
+        value: Value to convert to int
+
+    Returns:
+        Integer value or 0 if conversion fails
+    """
+    try:
+        return int(value) if value not in (None, "") else 0
+    except (TypeError, ValueError):
+        return 0
+
+
 class ACLEDClient(BaseAPIClient):
     """Client for ACLED API - Armed Conflict Location & Event Data."""
 
@@ -119,7 +135,7 @@ class ACLEDClient(BaseAPIClient):
         fatalities_by_type: Dict[str, int] = {}
 
         for event in events:
-            fatalities = int(event.get("fatalities", 0))
+            fatalities = safe_int(event.get("fatalities", 0))
             event_type = event.get("event_type", "Unknown")
 
             total_fatalities += fatalities
@@ -238,7 +254,7 @@ class ACLEDClient(BaseAPIClient):
 
             if events_data and events_data.get("events"):
                 for event in events_data["events"]:
-                    fatalities = int(event.get("fatalities", 0))
+                    fatalities = safe_int(event.get("fatalities", 0))
 
                     if fatalities >= min_fatalities:
                         alerts.append(
@@ -252,8 +268,8 @@ class ACLEDClient(BaseAPIClient):
                             }
                         )
 
-        # Sort by date descending
-        alerts.sort(key=lambda x: x.get("event_date", ""), reverse=True)
+        # Sort by date descending, handling None/missing dates
+        alerts.sort(key=lambda x: x.get("event_date") or "", reverse=True)
 
         return alerts
 

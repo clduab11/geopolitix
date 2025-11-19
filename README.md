@@ -77,16 +77,15 @@ python app.py
 
 The dashboard integrates with multiple data sources. You'll need API keys for:
 
-- **NewsAPI**: https://newsapi.org/register
+- **NewsAPI**: [https://newsapi.org/register](https://newsapi.org/register)
   - Free tier: 100 requests/day
   - Required for news sentiment analysis
-- **ACLED**: https://acleddata.com/register/
+- **ACLED**: [https://acleddata.com/register](https://acleddata.com/register)
   - Free tier: 2,500 requests/month
   - Required for conflict event data
   - Requires both API key and email address
 - **GDELT** (optional): Most endpoints are free
-  - No authentication required
-  - Used for global event tracking
+  - No authentication required – used for global event tracking
 - **World Bank**: No key required
   - Public API for governance indicators
   - No rate limits
@@ -95,7 +94,7 @@ The dashboard integrates with multiple data sources. You'll need API keys for:
 
 ## Project Structure
 
-```
+```text
 geopolitix/
 ├── app.py                    # Main application entry point
 ├── CLAUDE.md                 # Development guidelines
