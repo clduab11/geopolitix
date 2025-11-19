@@ -7,9 +7,9 @@ from src.data_sources.worldbank import WorldBankClient
 from src.data_sources.acled import ACLEDClient
 
 __all__ = [
+    "ACLEDClient",
     "BaseAPIClient",
     "GDELTClient",
     "NewsAPIClient",
     "WorldBankClient",
-    "ACLEDClient",
 ]

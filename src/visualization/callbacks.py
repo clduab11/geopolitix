@@ -112,7 +112,7 @@ def register_callbacks(app):
         ])
 
         # Alert feed
-        alerts = scorer.generate_alerts(df, threshold=70)
+        alerts = scorer.generate_alerts(df, threshold=RiskThresholds.ALERT_THRESHOLD_ABSOLUTE)
         alert_items = []
         for alert in alerts[:5]:
             alert_items.append(

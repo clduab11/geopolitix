@@ -38,6 +38,9 @@ class GDELTClient(BaseAPIClient):
         """
         # Build GDELT query
         query = f'"{country}" sourcelang:eng'
+        
+        # Convert days to hours for timespan parameter
+        timespan_hours = days * 24
 
         params = {
             "query": query,
@@ -45,6 +48,7 @@ class GDELTClient(BaseAPIClient):
             "maxrecords": max_records,
             "format": "json",
             "sort": "datedesc",
+            "timespan": f"{timespan_hours}h",
         }
 
         response = self.get("doc/doc", params=params)
@@ -92,6 +96,9 @@ class GDELTClient(BaseAPIClient):
         ]
 
         query = f'"{country}" ({" OR ".join(conflict_terms)}) sourcelang:eng'
+        
+        # Convert days to hours for timespan parameter
+        timespan_hours = days * 24
 
         params = {
             "query": query,
@@ -99,6 +106,7 @@ class GDELTClient(BaseAPIClient):
             "maxrecords": 100,
             "format": "json",
             "sort": "datedesc",
+            "timespan": f"{timespan_hours}h",
         }
 
         response = self.get("doc/doc", params=params)

@@ -5,6 +5,7 @@ from typing import Any, Dict, List
 from textblob import TextBlob
 
 from config.api_endpoints import APIEndpoints
+from config.risk_thresholds import RiskThresholds
 from config.settings import Settings
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
@@ -216,7 +217,7 @@ class NewsAPIClient(BaseAPIClient):
     def get_risk_alerts(
         self,
         countries: List[str],
-        threshold: float = -0.3,
+        threshold: float = None,
     ) -> List[Dict[str, Any]]:
         """
         Get alerts for countries with negative news sentiment.
@@ -228,6 +229,9 @@ class NewsAPIClient(BaseAPIClient):
         Returns:
             List of alert dictionaries
         """
+        if threshold is None:
+            threshold = RiskThresholds.SENTIMENT_NEGATIVE_THRESHOLD
+            
         alerts = []
 
         for country in countries:
