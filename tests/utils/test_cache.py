@@ -33,6 +33,7 @@ class TestCacheResponse:
 
     def test_different_args_not_cached(self):
         """Test that different arguments don't share cache."""
+        clear_cache()  # Clear any existing cache entries
         call_count = 0
 
         @cache_response()

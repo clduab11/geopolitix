@@ -51,14 +51,47 @@ python app.py
 
 6. Open your browser to `http://localhost:8050`
 
+### Troubleshooting
+
+**Dashboard won't start:**
+- Verify Python 3.9+ is installed: `python --version`
+- Check all dependencies installed: `pip list | grep dash`
+- Review logs in `logs/app.log`
+
+**API errors:**
+- Verify API keys in `.env` file are correct
+- Check API rate limits haven't been exceeded
+- Ensure internet connectivity for external API calls
+
+**Data not loading:**
+- Some data sources may be slow on first request
+- Check browser console for JavaScript errors
+- Manually refresh data: `python scripts/update_data.py`
+
+**UI rendering issues:**
+- Clear browser cache
+- Try a different browser (Chrome/Firefox recommended)
+- Check for ad-blockers interfering with CDN resources
+
 ## API Keys Required
 
 The dashboard integrates with multiple data sources. You'll need API keys for:
 
 - **NewsAPI**: https://newsapi.org/register
+  - Free tier: 100 requests/day
+  - Required for news sentiment analysis
 - **ACLED**: https://acleddata.com/register/
+  - Free tier: 2,500 requests/month
+  - Required for conflict event data
+  - Requires both API key and email address
 - **GDELT** (optional): Most endpoints are free
+  - No authentication required
+  - Used for global event tracking
 - **World Bank**: No key required
+  - Public API for governance indicators
+  - No rate limits
+
+**Important**: Set `HOST=0.0.0.0` in `.env` only if you need to expose the dashboard to your network. The default `127.0.0.1` restricts access to localhost for security.
 
 ## Project Structure
 
