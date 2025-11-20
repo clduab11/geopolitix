@@ -12,11 +12,39 @@ class Settings:
     PORT: int = config("PORT", default=8050, cast=int)
     HOST: str = config("HOST", default="127.0.0.1")
 
-    # API Keys
+    # API Keys - Original
     NEWSAPI_KEY: str = config("NEWSAPI_KEY", default="")
     GDELT_API_KEY: str = config("GDELT_API_KEY", default="")
     ACLED_API_KEY: str = config("ACLED_API_KEY", default="")
     ACLED_EMAIL: str = config("ACLED_EMAIL", default="")
+
+    # API Keys - AI & Advanced Search
+    PERPLEXITY_API_KEY: str = config("PERPLEXITY_API_KEY", default="")
+    PERPLEXITY_FINANCE_ENABLED: bool = config(
+        "PERPLEXITY_FINANCE_ENABLED", default=True, cast=bool
+    )
+    PERPLEXITY_SONAR_MODEL: str = config(
+        "PERPLEXITY_SONAR_MODEL", default="sonar-reasoning-pro"
+    )
+
+    TAVILY_API_KEY: str = config("TAVILY_API_KEY", default="")
+    TAVILY_SEARCH_DEPTH: str = config("TAVILY_SEARCH_DEPTH", default="advanced")
+    TAVILY_MAX_RESULTS: int = config("TAVILY_MAX_RESULTS", default=10, cast=int)
+    TAVILY_INCLUDE_DOMAINS: str = config("TAVILY_INCLUDE_DOMAINS", default="")
+    TAVILY_EXCLUDE_DOMAINS: str = config("TAVILY_EXCLUDE_DOMAINS", default="")
+
+    EXA_API_KEY: str = config("EXA_API_KEY", default="")
+    EXA_NUM_RESULTS: int = config("EXA_NUM_RESULTS", default=10, cast=int)
+    EXA_USE_AUTOPROMPT: bool = config("EXA_USE_AUTOPROMPT", default=True, cast=bool)
+
+    FIRECRAWL_API_KEY: str = config("FIRECRAWL_API_KEY", default="")
+    FIRECRAWL_CRAWL_DEPTH: int = config("FIRECRAWL_CRAWL_DEPTH", default=2, cast=int)
+    FIRECRAWL_ENABLE_JAVASCRIPT: bool = config(
+        "FIRECRAWL_ENABLE_JAVASCRIPT", default=True, cast=bool
+    )
+    FIRECRAWL_WAIT_FOR_SELECTOR: str = config(
+        "FIRECRAWL_WAIT_FOR_SELECTOR", default=""
+    )
 
     # Cache Settings
     CACHE_TTL_MINUTES: int = config("CACHE_TTL_MINUTES", default=15, cast=int)

@@ -4,11 +4,22 @@ Real-time geopolitical risk analysis dashboard designed for Chief Geopolitical O
 
 ## Features
 
+### Core Analytics
 - **Interactive World Risk Map**: Choropleth visualization of global geopolitical risk scores with drill-down capabilities
 - **Multi-Dimensional Analytics**: Trend analysis, comparative charts, and correlation matrices
 - **Scenario Modeling**: Simulate hypothetical geopolitical events and their cascading impacts
 - **Company Exposure Assessment**: Calculate your organization's risk exposure based on geographic presence
 - **Real-Time Alerts**: Automated notifications for significant risk changes
+
+### AI & Advanced Search Integrations ⭐ NEW
+- **Perplexity Finance**: Real-time financial market intelligence and geopolitical-financial correlation analysis
+- **Sonar Reasoning Pro**: Advanced AI-powered deep analysis, trend identification, and executive briefings
+- **Tavily Search**: Real-time web search optimized for breaking news and event validation
+- **Exa AI**: Neural/semantic search for discovering expert analysis and historical precedents
+- **Firecrawl**: Deep web scraping for monitoring official government and international organization sources
+- **Intelligence Aggregator**: Unified orchestration of all AI services for comprehensive multi-source analysis
+
+See [AI_INTEGRATIONS.md](docs/AI_INTEGRATIONS.md) for complete documentation.
 
 ## Quick Start
 
@@ -75,6 +86,8 @@ python app.py
 
 ## API Keys Required
 
+### Core Data Sources
+
 The dashboard integrates with multiple data sources. You'll need API keys for:
 
 - **NewsAPI**: [https://newsapi.org/register](https://newsapi.org/register)
@@ -89,6 +102,29 @@ The dashboard integrates with multiple data sources. You'll need API keys for:
 - **World Bank**: No key required
   - Public API for governance indicators
   - No rate limits
+
+### AI & Advanced Search APIs (Optional but Recommended)
+
+For enhanced intelligence capabilities:
+
+- **Perplexity AI**: [https://www.perplexity.ai/](https://www.perplexity.ai/)
+  - Used for: Finance intelligence and AI reasoning
+  - Required for: Financial market analysis, deep analysis, executive briefs
+  - Free tier available with limits
+- **Tavily**: [https://tavily.com/](https://tavily.com/)
+  - Used for: Real-time news search and breaking news monitoring
+  - Required for: Advanced news search, event validation
+  - Free tier: 1,000 requests/month
+- **Exa AI**: [https://exa.ai/](https://exa.ai/)
+  - Used for: Neural/semantic search, expert content discovery
+  - Required for: Similar event detection, think tank analysis
+  - Free tier available
+- **Firecrawl**: [https://firecrawl.dev/](https://firecrawl.dev/)
+  - Used for: Web scraping, official source monitoring
+  - Required for: Government site tracking, policy monitoring
+  - Free tier: 500 pages/month
+
+**Note**: The application will function with core data sources only. AI integrations are optional enhancements that provide additional intelligence capabilities.
 
 **Important**: Set `HOST=0.0.0.0` in `.env` only if you need to expose the dashboard to your network. The default `127.0.0.1` restricts access to localhost for security.
 

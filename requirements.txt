@@ -39,3 +39,12 @@ python-dateutil>=2.8.0
 
 # PDF Export
 reportlab>=4.0.0
+
+# AI & Search Integrations
+openai>=1.12.0  # For Perplexity API compatibility
+tavily-python>=0.3.0  # Tavily Search
+exa-py>=1.0.0  # Exa AI
+firecrawl-py>=0.0.10  # Firecrawl
+
+# Additional utilities for AI integrations
+tenacity>=8.2.0  # Retry logic for API calls
