@@ -5,6 +5,12 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
+from config.external_urls import (
+    DEFENSE_MINISTRY_URLS,
+    GOVERNMENT_URLS,
+    SANCTIONS_URLS,
+    THINK_TANK_URLS,
+)
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
 from src.utils.logger import get_logger
@@ -309,13 +315,7 @@ class FirecrawlClient(BaseAPIClient):
             Think tank publications with actual content (if wait_for_completion=True)
             or job information for later retrieval (if wait_for_completion=False)
         """
-        tank_urls = think_tanks or [
-            "https://www.cfr.org/",
-            "https://www.csis.org/",
-            "https://www.chathamhouse.org/",
-            "https://www.brookings.edu/",
-            "https://www.rand.org/",
-        ]
+        tank_urls = think_tanks or THINK_TANK_URLS
 
         results = []
         for url in tank_urls:
@@ -395,11 +395,7 @@ class FirecrawlClient(BaseAPIClient):
         Returns:
             Sanctions information
         """
-        sanctions_urls = [
-            "https://home.treasury.gov/policy-issues/financial-sanctions/sanctions-programs-and-country-information",
-            "https://www.sanctionsmap.eu/",
-            "https://www.un.org/securitycouncil/sanctions/information",
-        ]
+        sanctions_urls = SANCTIONS_URLS
 
         results = []
         for url in sanctions_urls:
@@ -453,48 +449,11 @@ class FirecrawlClient(BaseAPIClient):
 
     def _get_government_urls(self, country_code: str) -> List[str]:
         """Get government URLs for a country."""
-        gov_urls = {
-            "US": [
-                "https://www.state.gov/",
-                "https://www.whitehouse.gov/briefing-room/",
-            ],
-            "UK": [
-                "https://www.gov.uk/government/news",
-            ],
-            "DE": [
-                "https://www.bundesregierung.de/breg-en",
-            ],
-            "FR": [
-                "https://www.gouvernement.fr/en",
-            ],
-            "CN": [
-                "http://english.www.gov.cn/",
-            ],
-            "RU": [
-                "http://en.kremlin.ru/",
-            ],
-        }
-
-        return gov_urls.get(country_code.upper(), [])
+        return GOVERNMENT_URLS.get(country_code.upper(), [])
 
     def _get_defense_ministry_urls(self, country_code: str) -> List[str]:
         """Get defense ministry URLs for a country."""
-        defense_urls = {
-            "US": [
-                "https://www.defense.gov/News/",
-            ],
-            "UK": [
-                "https://www.gov.uk/government/organisations/ministry-of-defence",
-            ],
-            "FR": [
-                "https://www.defense.gouv.fr/",
-            ],
-            "DE": [
-                "https://www.bmvg.de/en",
-            ],
-        }
-
-        return defense_urls.get(country_code.upper(), [])
+        return DEFENSE_MINISTRY_URLS.get(country_code.upper(), [])
 
     def _calculate_change_percentage(
         self,

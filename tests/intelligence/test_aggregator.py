@@ -1,52 +1,57 @@
 """Tests for Intelligence Aggregator."""
 
 import pytest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from src.intelligence.aggregator import IntelligenceAggregator
 
 
 @pytest.fixture
-def aggregator():
-    """Create Intelligence Aggregator for testing."""
+def mock_clients():
+    """Create mock clients for testing."""
+    with patch("src.intelligence.aggregator.TavilySearchClient") as mock_tavily, \
+         patch("src.intelligence.aggregator.ExaSearchClient") as mock_exa, \
+         patch("src.intelligence.aggregator.FirecrawlClient") as mock_firecrawl, \
+         patch("src.intelligence.aggregator.PerplexityFinanceClient") as mock_finance, \
+         patch("src.intelligence.aggregator.SonarReasoningClient") as mock_sonar, \
+         patch("src.intelligence.aggregator.NewsAPIClient") as mock_newsapi:
+        yield {
+            "tavily": mock_tavily,
+            "exa": mock_exa,
+            "firecrawl": mock_firecrawl,
+            "finance": mock_finance,
+            "sonar": mock_sonar,
+            "newsapi": mock_newsapi,
+        }
+
+
+@pytest.fixture
+def aggregator(mock_clients):
+    """Create Intelligence Aggregator with mocked clients."""
     return IntelligenceAggregator()
 
 
-@patch("src.intelligence.aggregator.TavilySearchClient")
-@patch("src.intelligence.aggregator.ExaSearchClient")
-@patch("src.intelligence.aggregator.FirecrawlClient")
-@patch("src.intelligence.aggregator.PerplexityFinanceClient")
-@patch("src.intelligence.aggregator.SonarReasoningClient")
-@patch("src.intelligence.aggregator.NewsAPIClient")
-def test_comprehensive_country_analysis(
-    mock_newsapi,
-    mock_sonar,
-    mock_finance,
-    mock_firecrawl,
-    mock_exa,
-    mock_tavily,
-    aggregator,
-):
+def test_comprehensive_country_analysis(mock_clients, aggregator):
     """Test comprehensive country analysis."""
-    # Mock responses
-    mock_tavily.return_value.search_country_events.return_value = {
+    # Mock responses using the mock_clients fixture
+    mock_clients["tavily"].return_value.search_country_events.return_value = {
         "results": [{"title": "Test news"}]
     }
-    mock_exa.return_value.find_similar_events.return_value = {
+    mock_clients["exa"].return_value.find_similar_events.return_value = {
         "similar_events": []
     }
-    mock_firecrawl.return_value.monitor_government_site.return_value = {
+    mock_clients["firecrawl"].return_value.monitor_government_site.return_value = {
         "results": []
     }
-    mock_finance.return_value.get_market_impact.return_value = {
+    mock_clients["finance"].return_value.get_market_impact.return_value = {
         "market_data": "test"
     }
-    mock_newsapi.return_value.get_country_news.return_value = {
+    mock_clients["newsapi"].return_value.get_country_news.return_value = {
         "articles": [{"title": "Article 1"}]
     }
-    mock_sonar.return_value.synthesize_news.return_value = {
+    mock_clients["sonar"].return_value.synthesize_news.return_value = {
         "summary": "Test summary"
     }
-    mock_sonar.return_value.deep_dive_analysis.return_value = {
+    mock_clients["sonar"].return_value.deep_dive_analysis.return_value = {
         "analysis": "Test analysis"
     }
 
@@ -62,24 +67,16 @@ def test_comprehensive_country_analysis(
     assert "data_sources" in result
 
 
-@patch("src.intelligence.aggregator.TavilySearchClient")
-@patch("src.intelligence.aggregator.NewsAPIClient")
-@patch("src.intelligence.aggregator.SonarReasoningClient")
-def test_breaking_news_monitor(
-    mock_sonar,
-    mock_newsapi,
-    mock_tavily,
-    aggregator,
-):
+def test_breaking_news_monitor(mock_clients, aggregator):
     """Test breaking news monitoring."""
     # Mock responses
-    mock_tavily.return_value.breaking_news_search.return_value = {
+    mock_clients["tavily"].return_value.breaking_news_search.return_value = {
         "results": [{"title": "Breaking"}]
     }
-    mock_newsapi.return_value.get_geopolitical_news.return_value = {
+    mock_clients["newsapi"].return_value.get_geopolitical_news.return_value = {
         "articles": []
     }
-    mock_sonar.return_value.prioritize_alerts.return_value = {
+    mock_clients["sonar"].return_value.prioritize_alerts.return_value = {
         "prioritization": "Test"
     }
 

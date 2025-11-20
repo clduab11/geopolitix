@@ -23,6 +23,20 @@ class TavilySearchClient(BaseAPIClient):
         self.search_depth = Settings.TAVILY_SEARCH_DEPTH
         self.max_results = Settings.TAVILY_MAX_RESULTS
 
+        # Parse domain filters from comma-separated settings
+        include_str = Settings.TAVILY_INCLUDE_DOMAINS
+        exclude_str = Settings.TAVILY_EXCLUDE_DOMAINS
+        self.include_domains = (
+            [d.strip() for d in include_str.split(",") if d.strip()]
+            if include_str
+            else []
+        )
+        self.exclude_domains = (
+            [d.strip() for d in exclude_str.split(",") if d.strip()]
+            if exclude_str
+            else []
+        )
+
     @cache_response(ttl_minutes=5)
     def search_news(
         self,
@@ -53,8 +67,8 @@ class TavilySearchClient(BaseAPIClient):
             "max_results": self.max_results,
             "include_answer": True,
             "include_raw_content": False,
-            "include_domains": include_domains or [],
-            "exclude_domains": exclude_domains or [],
+            "include_domains": include_domains or self.include_domains,
+            "exclude_domains": exclude_domains or self.exclude_domains,
             "topic": "news",
         }
 

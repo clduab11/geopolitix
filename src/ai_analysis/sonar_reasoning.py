@@ -447,9 +447,23 @@ class SonarReasoningClient(BaseAPIClient):
         return {"timeframe": timeframe, "brief": ""}
 
     def _extract_reasoning(self, choice: Dict[str, Any]) -> List[str]:
-        """Extract reasoning steps from response."""
-        # Placeholder for reasoning extraction logic
-        # In practice, this would parse the response structure
+        """
+        Extract reasoning steps from response.
+
+        Note: Currently returns empty list as Perplexity API does not
+        expose intermediate reasoning steps in the response structure.
+        This is a placeholder for future enhancement if the API adds
+        this capability.
+
+        Args:
+            choice: Response choice object from API
+
+        Returns:
+            Empty list (reasoning steps not available from API)
+        """
+        # Perplexity API does not currently expose reasoning chain
+        # in the response structure. If this changes in future API versions,
+        # this method can be enhanced to parse and return those steps.
         return []
 
     def _summarize_data_sources(self, data: Dict[str, Any]) -> str:
