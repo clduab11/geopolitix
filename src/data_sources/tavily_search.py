@@ -48,7 +48,6 @@ class TavilySearchClient(BaseAPIClient):
         depth = search_depth or self.search_depth
 
         payload = {
-            "api_key": self.api_key,
             "query": query,
             "search_depth": depth,
             "max_results": self.max_results,
@@ -59,10 +58,9 @@ class TavilySearchClient(BaseAPIClient):
             "topic": "news",
         }
 
-        # Add time filter if available
-        if days:
-            from_date = (datetime.utcnow() - timedelta(days=days)).isoformat()
-            payload["time_filter"] = from_date
+        # Add days filter if available (Tavily uses 'days' parameter, not 'time_filter')
+        if days is not None:
+            payload["days"] = days
 
         response = self.post("search", json_data=payload)
 
@@ -157,7 +155,6 @@ class TavilySearchClient(BaseAPIClient):
             Research results
         """
         payload = {
-            "api_key": self.api_key,
             "query": topic,
             "search_depth": "advanced",
             "max_results": 20,  # More results for research
@@ -319,7 +316,7 @@ class TavilySearchClient(BaseAPIClient):
                 "academia.edu",
             ],
             "government": [
-                "gov",
+                "*.gov",
                 "state.gov",
                 "whitehouse.gov",
                 "europa.eu",

@@ -1,6 +1,6 @@
 """Perplexity Finance API integration for financial market intelligence."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -21,6 +21,7 @@ class PerplexityFinanceClient(BaseAPIClient):
             api_key=Settings.PERPLEXITY_API_KEY,
         )
         self.finance_enabled = Settings.PERPLEXITY_FINANCE_ENABLED
+        self.model = Settings.PERPLEXITY_FINANCE_MODEL
 
     @cache_response(ttl_minutes=5)
     def get_market_impact(
@@ -48,7 +49,7 @@ class PerplexityFinanceClient(BaseAPIClient):
             query += f" {event_description}"
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",
@@ -107,7 +108,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         )
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",
@@ -158,7 +159,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         )
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",
@@ -211,7 +212,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         )
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",
@@ -259,7 +260,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         )
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",
@@ -309,7 +310,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         )
 
         payload = {
-            "model": "sonar-pro",
+            "model": self.model,
             "messages": [
                 {
                     "role": "system",

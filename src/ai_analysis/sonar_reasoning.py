@@ -20,7 +20,7 @@ class SonarReasoningClient(BaseAPIClient):
             base_url="https://api.perplexity.ai",
             api_key=Settings.PERPLEXITY_API_KEY,
         )
-        self.model = Settings.PERPLEXITY_SONAR_MODEL
+        self.model = Settings.PERPLEXITY_REASONING_MODEL
 
     @cache_response(ttl_minutes=60)
     def deep_dive_analysis(
