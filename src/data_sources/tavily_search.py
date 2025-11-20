@@ -294,7 +294,8 @@ class TavilySearchClient(BaseAPIClient):
         hours: int,
     ) -> List[Dict[str, Any]]:
         """Filter results by time in hours."""
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        from datetime import timezone
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
         filtered = []
 
         for result in results:

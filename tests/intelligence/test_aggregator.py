@@ -90,10 +90,9 @@ def test_breaking_news_monitor(mock_clients, aggregator):
     assert "prioritized_alerts" in result
 
 
-@patch("src.intelligence.aggregator.SonarReasoningClient")
-def test_generate_executive_brief(mock_sonar, aggregator):
+def test_generate_executive_brief(mock_clients, aggregator):
     """Test executive brief generation."""
-    mock_sonar.return_value.generate_executive_brief.return_value = {
+    mock_clients["sonar"].return_value.generate_executive_brief.return_value = {
         "brief": "Test executive brief",
         "timeframe": "24h",
     }
@@ -123,19 +122,11 @@ def test_country_code_conversion(aggregator):
     assert len(aggregator._get_country_code("Unknown")) == 2
 
 
-@patch("src.intelligence.aggregator.TavilySearchClient")
-@patch("src.intelligence.aggregator.ExaSearchClient")
-@patch("src.intelligence.aggregator.NewsAPIClient")
-def test_multi_source_search(
-    mock_newsapi,
-    mock_exa,
-    mock_tavily,
-    aggregator,
-):
+def test_multi_source_search(mock_clients, aggregator):
     """Test multi-source search."""
-    mock_tavily.return_value.search_news.return_value = {"results": []}
-    mock_exa.return_value.neural_search.return_value = {"results": []}
-    mock_newsapi.return_value.get_geopolitical_news.return_value = {
+    mock_clients["tavily"].return_value.search_news.return_value = {"results": []}
+    mock_clients["exa"].return_value.neural_search.return_value = {"results": []}
+    mock_clients["newsapi"].return_value.get_geopolitical_news.return_value = {
         "articles": []
     }
 
@@ -151,24 +142,16 @@ def test_multi_source_search(
     assert "exa" in result["sources"]
 
 
-@patch("src.intelligence.aggregator.TavilySearchClient")
-@patch("src.intelligence.aggregator.ExaSearchClient")
-@patch("src.intelligence.aggregator.SonarReasoningClient")
-def test_validate_event_multi_source(
-    mock_sonar,
-    mock_exa,
-    mock_tavily,
-    aggregator,
-):
+def test_validate_event_multi_source(mock_clients, aggregator):
     """Test multi-source event validation."""
-    mock_tavily.return_value.validate_event.return_value = {
+    mock_clients["tavily"].return_value.validate_event.return_value = {
         "validated": True,
         "sources": [1, 2, 3],
     }
-    mock_exa.return_value.find_similar_events.return_value = {
+    mock_clients["exa"].return_value.find_similar_events.return_value = {
         "similar_events": []
     }
-    mock_sonar.return_value.causal_inference.return_value = {
+    mock_clients["sonar"].return_value.causal_inference.return_value = {
         "causal_analysis": "Test"
     }
 
