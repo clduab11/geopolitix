@@ -334,41 +334,46 @@ class PerplexityFinanceClient(BaseAPIClient):
 
         return {"sentiment": "neutral", "data": {}}
 
-    def calculate_financial_risk_correlation(
+    def get_financial_data_for_risk_score(
         self,
         country: str,
         risk_score: float,
     ) -> Dict[str, Any]:
         """
-        Calculate correlation between geopolitical risk score and financial metrics.
+        Get financial data associated with a geopolitical risk score.
+
+        Note: This retrieves financial metrics but does not perform statistical
+        correlation analysis. For actual correlation, use statistical methods
+        on historical data.
 
         Args:
             country: Country name
             risk_score: Current geopolitical risk score (0-100)
 
         Returns:
-            Correlation analysis
+            Financial data with risk context
         """
         if not self.finance_enabled:
-            return {"country": country, "correlation": 0.0}
+            return {"country": country, "risk_score": risk_score, "financial_data": {}}
 
         # Get various financial metrics
         market_impact = self.get_market_impact(country)
         currency_impact = self.get_currency_impact(country)
 
-        # Simple correlation estimation based on risk score
+        # Normalize risk score for context (0.0 to 1.0)
         # Higher risk typically correlates with:
         # - Lower stock prices
         # - Currency depreciation (for emerging markets)
         # - Higher bond yields
-        correlation_factor = risk_score / 100.0
+        MAX_RISK_SCORE = 100.0
+        normalized_risk = risk_score / MAX_RISK_SCORE
 
         return {
             "country": country,
             "risk_score": risk_score,
+            "normalized_risk": round(normalized_risk, 3),
             "market_impact": market_impact,
             "currency_impact": currency_impact,
-            "correlation_factor": round(correlation_factor, 3),
             "timestamp": datetime.utcnow().isoformat(),
         }
 

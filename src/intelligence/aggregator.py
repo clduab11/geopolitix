@@ -15,6 +15,11 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Constants
+MAX_ARTICLES_FOR_SYNTHESIS = 10  # Maximum articles to process for AI synthesis
+MAX_ALERTS = 20  # Maximum alerts to return
+DEFAULT_RISK_SCORE = 50.0  # Default risk score when none is available
+
 
 class IntelligenceAggregator:
     """
@@ -253,6 +258,7 @@ class IntelligenceAggregator:
     def multi_source_search(
         self,
         query: str,
+        country: Optional[str] = None,
         include_financial: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -260,7 +266,10 @@ class IntelligenceAggregator:
 
         Args:
             query: Search query
-            include_financial: Include financial analysis
+            country: Optional country name for financial analysis.
+                If not provided and include_financial=True, financial
+                analysis will be skipped.
+            include_financial: Include financial analysis (requires country parameter)
 
         Returns:
             Combined search results
@@ -281,11 +290,17 @@ class IntelligenceAggregator:
                 ),
             }
 
-            if include_financial:
+            # Only include financial analysis if country is specified
+            if include_financial and country:
                 futures["finance"] = executor.submit(
                     self.perplexity_finance.get_market_impact,
-                    country=query,
-                    event_description=None,
+                    country=country,
+                    event_description=query,
+                )
+            elif include_financial and not country:
+                logger.warning(
+                    "Financial analysis requested but no country specified. "
+                    "Skipping financial integration."
                 )
 
             # Collect results
@@ -366,7 +381,7 @@ class IntelligenceAggregator:
         """
         # Get financial data
         financial_correlation = (
-            self.perplexity_finance.calculate_financial_risk_correlation(
+            self.perplexity_finance.get_financial_data_for_risk_score(
                 country=country,
                 risk_score=risk_score,
             )
@@ -462,17 +477,38 @@ class IntelligenceAggregator:
         self,
         articles: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
-        """Convert articles to alert format."""
+        """
+        Convert articles to alert format.
+
+        Normalizes different article structures from:
+        - Tavily: uses 'domain' field
+        - NewsAPI: uses 'source' dictionary with 'name' key
+        """
         alerts = []
 
-        for article in articles[:20]:  # Limit to 20
+        for article in articles[:MAX_ALERTS]:
+            # Normalize source field - handle both Tavily and NewsAPI formats
+            source = article.get("source", {})
+            if isinstance(source, dict):
+                # NewsAPI format: {'id': ..., 'name': ...}
+                source_name = source.get("name", "Unknown")
+            elif isinstance(source, str):
+                # Already a string
+                source_name = source
+            else:
+                # Tavily format: uses 'domain' field
+                source_name = article.get("domain", "Unknown")
+
             alerts.append(
                 {
                     "country": article.get("country", "Unknown"),
                     "alert_type": "news",
-                    "risk_score": 50.0,  # Default
+                    "risk_score": article.get("risk_score", DEFAULT_RISK_SCORE),
                     "title": article.get("title", ""),
-                    "source": article.get("source", {}),
+                    "source": source_name,
+                    "url": article.get("url", ""),
+                    "published_at": article.get("published_at")
+                    or article.get("publishedAt", ""),
                 }
             )
 
