@@ -10,6 +10,10 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Constants for content limits and processing
+MAX_ARTICLES_FOR_SYNTHESIS = 10  # Maximum articles to process for synthesis
+SUMMARY_CONTENT_LIMIT = 200  # Character limit for data source summaries
+
 
 class SonarReasoningClient(BaseAPIClient):
     """Client for Perplexity Sonar Reasoning Pro - Advanced AI analysis."""
@@ -99,7 +103,7 @@ class SonarReasoningClient(BaseAPIClient):
         """
         # Prepare article summaries for analysis
         article_texts = []
-        for i, article in enumerate(articles[:10], 1):  # Limit to 10
+        for i, article in enumerate(articles[:MAX_ARTICLES_FOR_SYNTHESIS], 1):
             title = article.get("title", "")
             description = article.get("description", "")
             article_texts.append(f"{i}. {title}: {description}")
@@ -473,7 +477,7 @@ class SonarReasoningClient(BaseAPIClient):
 
         summary_parts = []
         for source, content in data.items():
-            summary_parts.append(f"{source}: {str(content)[:200]}...")
+            summary_parts.append(f"{source}: {str(content)[:SUMMARY_CONTENT_LIMIT]}...")
 
         return "\n".join(summary_parts)
 

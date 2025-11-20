@@ -10,6 +10,9 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Constants for search configuration
+RESEARCH_MAX_RESULTS = 20  # More results for research queries
+
 
 class TavilySearchClient(BaseAPIClient):
     """Client for Tavily - Real-time web search optimized for AI."""
@@ -171,7 +174,7 @@ class TavilySearchClient(BaseAPIClient):
         payload = {
             "query": topic,
             "search_depth": "advanced",
-            "max_results": 20,  # More results for research
+            "max_results": RESEARCH_MAX_RESULTS,
             "include_answer": True,
             "include_raw_content": True,  # Get full content
             "topic": "general",
