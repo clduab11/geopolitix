@@ -1,0 +1,134 @@
+/* GEOPOLITIX Custom Styles */
+
+/* Dashboard container */
+.dash-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Card styling */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Risk level badges */
+.badge-critical {
+    background-color: #8e44ad !important;
+}
+
+.badge-high {
+    background-color: #e74c3c !important;
+}
+
+.badge-moderate {
+    background-color: #f39c12 !important;
+}
+
+.badge-low {
+    background-color: #2ecc71 !important;
+}
+
+/* Alert styling */
+.alert-feed .alert {
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Summary cards */
+.summary-card {
+    text-align: center;
+    padding: 1rem;
+}
+
+.summary-card h3 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.summary-card h6 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Map container */
+.map-container {
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+/* Tab styling */
+.nav-tabs .nav-link.active {
+    font-weight: 600;
+}
+
+/* Dropdown styling */
+.Select-control {
+    border-radius: 4px !important;
+}
+
+/* Slider styling */
+.rc-slider-track {
+    background-color: #3498db !important;
+}
+
+.rc-slider-handle {
+    border-color: #3498db !important;
+}
+
+/* Table styling */
+.dash-table-container {
+    font-size: 0.875rem;
+}
+
+/* Upload area */
+.upload-area {
+    border: 2px dashed #dee2e6;
+    border-radius: 4px;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.upload-area:hover {
+    border-color: #3498db;
+}
+
+/* Loading spinner */
+.dash-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .summary-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .btn, .nav-tabs, .interval-component {
+        display: none !important;
+    }
+
+    .card {
+        break-inside: avoid;
+    }
+}
