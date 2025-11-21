@@ -4,11 +4,15 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
+from src.constants import MAX_ARTICLES_FOR_SYNTHESIS
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Constants for content limits and processing
+SUMMARY_CONTENT_LIMIT = 200  # Character limit for data source summaries
 
 
 class SonarReasoningClient(BaseAPIClient):
@@ -20,7 +24,7 @@ class SonarReasoningClient(BaseAPIClient):
             base_url="https://api.perplexity.ai",
             api_key=Settings.PERPLEXITY_API_KEY,
         )
-        self.model = Settings.PERPLEXITY_SONAR_MODEL
+        self.model = Settings.PERPLEXITY_REASONING_MODEL
 
     @cache_response(ttl_minutes=60)
     def deep_dive_analysis(
@@ -99,7 +103,7 @@ class SonarReasoningClient(BaseAPIClient):
         """
         # Prepare article summaries for analysis
         article_texts = []
-        for i, article in enumerate(articles[:10], 1):  # Limit to 10
+        for i, article in enumerate(articles[:MAX_ARTICLES_FOR_SYNTHESIS], 1):
             title = article.get("title", "")
             description = article.get("description", "")
             article_texts.append(f"{i}. {title}: {description}")
@@ -447,9 +451,23 @@ class SonarReasoningClient(BaseAPIClient):
         return {"timeframe": timeframe, "brief": ""}
 
     def _extract_reasoning(self, choice: Dict[str, Any]) -> List[str]:
-        """Extract reasoning steps from response."""
-        # Placeholder for reasoning extraction logic
-        # In practice, this would parse the response structure
+        """
+        Extract reasoning steps from response.
+
+        Note: Currently returns empty list as Perplexity API does not
+        expose intermediate reasoning steps in the response structure.
+        This is a placeholder for future enhancement if the API adds
+        this capability.
+
+        Args:
+            choice: Response choice object from API
+
+        Returns:
+            Empty list (reasoning steps not available from API)
+        """
+        # Perplexity API does not currently expose reasoning chain
+        # in the response structure. If this changes in future API versions,
+        # this method can be enhanced to parse and return those steps.
         return []
 
     def _summarize_data_sources(self, data: Dict[str, Any]) -> str:
@@ -459,7 +477,7 @@ class SonarReasoningClient(BaseAPIClient):
 
         summary_parts = []
         for source, content in data.items():
-            summary_parts.append(f"{source}: {str(content)[:200]}...")
+            summary_parts.append(f"{source}: {str(content)[:SUMMARY_CONTENT_LIMIT]}...")
 
         return "\n".join(summary_parts)
 

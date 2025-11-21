@@ -10,6 +10,15 @@ from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+# Constants for result limits and scoring
+EXPERT_SEARCH_RESULTS = 15  # Number of expert analysis results
+NARRATIVE_SEARCH_RESULTS = 20  # Number of emerging narrative results
+POLICY_SEARCH_RESULTS = 15  # Number of policy document results
+SIMILARITY_CLUSTER_RESULTS = 5  # Number of similar events per cluster
+MAX_SIMILARITY_SCORE = 1.0  # Maximum similarity score
+SIMILARITY_DECAY_RATE = 0.1  # Decay rate for similarity ranking
+RECENT_CUTOFF_DAYS = 7  # Days cutoff for "recent" events
+
 
 class ExaSearchClient(BaseAPIClient):
     """Client for Exa AI - Neural search for high-quality content."""
@@ -155,7 +164,7 @@ class ExaSearchClient(BaseAPIClient):
 
         payload = {
             "query": f"Expert analysis on {topic}",
-            "numResults": 15,
+            "numResults": EXPERT_SEARCH_RESULTS,
             "useAutoprompt": True,
             "type": "neural",
             "includeDomains": expert_domains,
@@ -195,7 +204,7 @@ class ExaSearchClient(BaseAPIClient):
 
         payload = {
             "query": f"Emerging geopolitical narratives and trends in {region}",
-            "numResults": 20,
+            "numResults": NARRATIVE_SEARCH_RESULTS,
             "useAutoprompt": True,
             "type": "neural",
             "startPublishedDate": start_date,
@@ -324,7 +333,7 @@ class ExaSearchClient(BaseAPIClient):
 
         payload = {
             "query": f"Policy documents on {query}",
-            "numResults": 15,
+            "numResults": POLICY_SEARCH_RESULTS,
             "useAutoprompt": True,
             "type": "neural",
             "includeDomains": gov_domains,
@@ -360,7 +369,7 @@ class ExaSearchClient(BaseAPIClient):
 
         # Search for each event and find similar ones
         for event in events:
-            similar = self.find_similar_events(event, num_results=5)
+            similar = self.find_similar_events(event, num_results=SIMILARITY_CLUSTER_RESULTS)
             clusters[event] = similar.get("similar_events", [])
 
         return {
@@ -379,7 +388,9 @@ class ExaSearchClient(BaseAPIClient):
         # In production, this would use embeddings or other similarity metrics
         for i, result in enumerate(results):
             # Simple scoring based on position (Exa returns most relevant first)
-            result["similarity_score"] = round(1.0 - (i * 0.1), 2)
+            result["similarity_score"] = round(
+                MAX_SIMILARITY_SCORE - (i * SIMILARITY_DECAY_RATE), 2
+            )
 
         return results
 
@@ -411,7 +422,7 @@ class ExaSearchClient(BaseAPIClient):
         recent = []
         older = []
 
-        cutoff = datetime.utcnow() - timedelta(days=7)
+        cutoff = datetime.utcnow() - timedelta(days=RECENT_CUTOFF_DAYS)
 
         for result in results:
             pub_date = result.get("publishedDate")

@@ -1,14 +1,27 @@
 """Firecrawl integration for deep web scraping and content extraction."""
 
+import time
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
+from config.external_urls import (
+    DEFENSE_MINISTRY_URLS,
+    GOVERNMENT_URLS,
+    SANCTIONS_URLS,
+    THINK_TANK_URLS,
+)
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Constants for async job handling
+CRAWL_POLL_INTERVAL = 5  # seconds between status checks
+CRAWL_MAX_WAIT_TIME = 120  # maximum seconds to wait for crawl completion
+THINK_TANK_MAX_DEPTH = 2  # max crawl depth for think tank sites
+THINK_TANK_PAGE_LIMIT = 10  # max pages per think tank site
 
 
 class FirecrawlClient(BaseAPIClient):
@@ -161,6 +174,65 @@ class FirecrawlClient(BaseAPIClient):
 
         return {"job_id": job_id, "status": "error"}
 
+    def wait_for_crawl_completion(
+        self,
+        job_id: str,
+        max_wait_time: int = CRAWL_MAX_WAIT_TIME,
+        poll_interval: int = CRAWL_POLL_INTERVAL,
+    ) -> Dict[str, Any]:
+        """
+        Poll for crawl job completion.
+
+        Args:
+            job_id: Crawl job ID
+            max_wait_time: Maximum seconds to wait for completion
+            poll_interval: Seconds between status checks
+
+        Returns:
+            Final crawl results or timeout status
+        """
+        start_time = time.time()
+
+        while True:
+            # Calculate elapsed time at the start of each iteration
+            elapsed = time.time() - start_time
+            if elapsed >= max_wait_time:
+                break
+
+            status_result = self.get_crawl_status(job_id)
+            current_status = status_result.get("status", "unknown")
+
+            if current_status == "completed":
+                logger.info(f"Crawl job {job_id} completed successfully")
+                return status_result
+            elif current_status in ["error", "failed"]:
+                logger.error(f"Crawl job {job_id} failed")
+                return status_result
+
+            # Still in progress
+            remaining = max_wait_time - elapsed
+            logger.debug(
+                f"Crawl job {job_id} status: {current_status}, "
+                f"waiting... ({remaining:.0f}s remaining)"
+            )
+            
+            # Don't sleep past the timeout
+            if remaining <= 0:
+                break
+            time.sleep(min(poll_interval, remaining))
+
+        # Timeout reached
+        logger.warning(
+            f"Crawl job {job_id} timed out after {max_wait_time}s. "
+            "Job may still be running on server."
+        )
+        return {
+            "job_id": job_id,
+            "status": "timeout",
+            "message": f"Polling timed out after {max_wait_time}s",
+            "timestamp": datetime.utcnow().isoformat(),
+        }
+
     @cache_response(ttl_minutes=360)
     def monitor_government_site(
         self,
@@ -235,6 +307,7 @@ class FirecrawlClient(BaseAPIClient):
         self,
         topic: str,
         think_tanks: Optional[List[str]] = None,
+        wait_for_completion: bool = True,
     ) -> Dict[str, Any]:
         """
         Scrape publications from major think tanks.
@@ -242,34 +315,41 @@ class FirecrawlClient(BaseAPIClient):
         Args:
             topic: Topic to search for
             think_tanks: Specific think tanks to scrape
+            wait_for_completion: If True, wait for crawl jobs to complete.
+                If False, return job IDs immediately for async handling.
 
         Returns:
-            Think tank publications
+            Think tank publications with actual content (if wait_for_completion=True)
+            or job information for later retrieval (if wait_for_completion=False)
         """
-        tank_urls = think_tanks or [
-            "https://www.cfr.org/",
-            "https://www.csis.org/",
-            "https://www.chathamhouse.org/",
-            "https://www.brookings.edu/",
-            "https://www.rand.org/",
-        ]
+        tank_urls = think_tanks or THINK_TANK_URLS
 
         results = []
         for url in tank_urls:
             # Crawl the think tank site
             crawl_job = self.crawl_website(
                 start_url=url,
-                max_depth=2,
-                limit=10,
+                max_depth=THINK_TANK_MAX_DEPTH,
+                limit=THINK_TANK_PAGE_LIMIT,
                 include_paths=[topic.lower()],
             )
-            results.append(crawl_job)
+
+            if wait_for_completion and crawl_job.get("job_id"):
+                # Poll for completion
+                completed_result = self.wait_for_crawl_completion(
+                    crawl_job["job_id"]
+                )
+                results.append(completed_result)
+            else:
+                # Return job info immediately
+                results.append(crawl_job)
 
         return {
             "topic": topic,
             "think_tanks": tank_urls,
-            "crawl_jobs": results,
+            "results": results,
             "count": len(results),
+            "completed": wait_for_completion,
             "timestamp": datetime.utcnow().isoformat(),
         }
 
@@ -322,12 +402,7 @@ class FirecrawlClient(BaseAPIClient):
         Returns:
             Sanctions information
         """
-        sanctions_urls = [
-            f"https://home.treasury.gov/policy-issues/financial-sanctions/"
-            f"sanctions-programs-and-country-information",
-            "https://www.sanctionsmap.eu/",
-            "https://www.un.org/securitycouncil/sanctions/information",
-        ]
+        sanctions_urls = SANCTIONS_URLS
 
         results = []
         for url in sanctions_urls:
@@ -381,48 +456,11 @@ class FirecrawlClient(BaseAPIClient):
 
     def _get_government_urls(self, country_code: str) -> List[str]:
         """Get government URLs for a country."""
-        gov_urls = {
-            "US": [
-                "https://www.state.gov/",
-                "https://www.whitehouse.gov/briefing-room/",
-            ],
-            "UK": [
-                "https://www.gov.uk/government/news",
-            ],
-            "DE": [
-                "https://www.bundesregierung.de/breg-en",
-            ],
-            "FR": [
-                "https://www.gouvernement.fr/en",
-            ],
-            "CN": [
-                "http://english.www.gov.cn/",
-            ],
-            "RU": [
-                "http://en.kremlin.ru/",
-            ],
-        }
-
-        return gov_urls.get(country_code.upper(), [])
+        return GOVERNMENT_URLS.get(country_code.upper(), [])
 
     def _get_defense_ministry_urls(self, country_code: str) -> List[str]:
         """Get defense ministry URLs for a country."""
-        defense_urls = {
-            "US": [
-                "https://www.defense.gov/News/",
-            ],
-            "UK": [
-                "https://www.gov.uk/government/organisations/ministry-of-defence",
-            ],
-            "FR": [
-                "https://www.defense.gouv.fr/",
-            ],
-            "DE": [
-                "https://www.bmvg.de/en",
-            ],
-        }
-
-        return defense_urls.get(country_code.upper(), [])
+        return DEFENSE_MINISTRY_URLS.get(country_code.upper(), [])
 
     def _calculate_change_percentage(
         self,

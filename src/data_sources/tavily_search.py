@@ -1,6 +1,6 @@
 """Tavily API integration for real-time web search and news aggregation."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -9,6 +9,9 @@ from src.utils.cache import cache_response
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Constants for search configuration
+RESEARCH_MAX_RESULTS = 20  # More results for research queries
 
 
 class TavilySearchClient(BaseAPIClient):
@@ -22,6 +25,20 @@ class TavilySearchClient(BaseAPIClient):
         )
         self.search_depth = Settings.TAVILY_SEARCH_DEPTH
         self.max_results = Settings.TAVILY_MAX_RESULTS
+
+        # Parse domain filters from comma-separated settings
+        include_str = Settings.TAVILY_INCLUDE_DOMAINS
+        exclude_str = Settings.TAVILY_EXCLUDE_DOMAINS
+        self.include_domains = (
+            [d.strip() for d in include_str.split(",") if d.strip()]
+            if include_str
+            else []
+        )
+        self.exclude_domains = (
+            [d.strip() for d in exclude_str.split(",") if d.strip()]
+            if exclude_str
+            else []
+        )
 
     @cache_response(ttl_minutes=5)
     def search_news(
@@ -47,6 +64,7 @@ class TavilySearchClient(BaseAPIClient):
         """
         depth = search_depth or self.search_depth
 
+        # Tavily requires API key in request body, not just headers
         payload = {
             "api_key": self.api_key,
             "query": query,
@@ -54,15 +72,14 @@ class TavilySearchClient(BaseAPIClient):
             "max_results": self.max_results,
             "include_answer": True,
             "include_raw_content": False,
-            "include_domains": include_domains or [],
-            "exclude_domains": exclude_domains or [],
+            "include_domains": include_domains or self.include_domains,
+            "exclude_domains": exclude_domains or self.exclude_domains,
             "topic": "news",
         }
 
-        # Add time filter if available
-        if days:
-            from_date = (datetime.utcnow() - timedelta(days=days)).isoformat()
-            payload["time_filter"] = from_date
+        # Add days filter if available (Tavily uses 'days' parameter, not 'time_filter')
+        if days is not None:
+            payload["days"] = days
 
         response = self.post("search", json_data=payload)
 
@@ -73,7 +90,7 @@ class TavilySearchClient(BaseAPIClient):
                 "answer": response.get("answer", ""),
                 "follow_up_questions": response.get("follow_up_questions", []),
                 "search_depth": depth,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_search_response(query)
@@ -156,11 +173,12 @@ class TavilySearchClient(BaseAPIClient):
         Returns:
             Research results
         """
+        # Tavily requires API key in request body, not just headers
         payload = {
             "api_key": self.api_key,
             "query": topic,
             "search_depth": "advanced",
-            "max_results": 20,  # More results for research
+            "max_results": RESEARCH_MAX_RESULTS,
             "include_answer": True,
             "include_raw_content": True,  # Get full content
             "topic": "general",
@@ -180,7 +198,7 @@ class TavilySearchClient(BaseAPIClient):
                 "results": response.get("results", []),
                 "answer": response.get("answer", ""),
                 "sources": self._extract_sources(response.get("results", [])),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_search_response(topic)
@@ -223,7 +241,7 @@ class TavilySearchClient(BaseAPIClient):
                     if credibility_scores
                     else 0.0
                 ),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
@@ -271,7 +289,7 @@ class TavilySearchClient(BaseAPIClient):
             "languages": languages,
             "results": all_results,
             "total_results": len(all_results),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _filter_by_hours(
@@ -280,7 +298,7 @@ class TavilySearchClient(BaseAPIClient):
         hours: int,
     ) -> List[Dict[str, Any]]:
         """Filter results by time in hours."""
-        cutoff_time = datetime.utcnow() - timedelta(hours=hours)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(hours=hours)
         filtered = []
 
         for result in results:
@@ -319,7 +337,7 @@ class TavilySearchClient(BaseAPIClient):
                 "academia.edu",
             ],
             "government": [
-                "gov",
+                "*.gov",
                 "state.gov",
                 "whitehouse.gov",
                 "europa.eu",
@@ -399,5 +417,5 @@ class TavilySearchClient(BaseAPIClient):
             "query": query,
             "results": [],
             "answer": "",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
