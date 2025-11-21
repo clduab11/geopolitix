@@ -192,9 +192,13 @@ class FirecrawlClient(BaseAPIClient):
             Final crawl results or timeout status
         """
         start_time = time.time()
-        elapsed = 0
 
-        while elapsed < max_wait_time:
+        while True:
+            # Calculate elapsed time at the start of each iteration
+            elapsed = time.time() - start_time
+            if elapsed >= max_wait_time:
+                break
+
             status_result = self.get_crawl_status(job_id)
             current_status = status_result.get("status", "unknown")
 
@@ -206,13 +210,16 @@ class FirecrawlClient(BaseAPIClient):
                 return status_result
 
             # Still in progress
-            elapsed = time.time() - start_time
             remaining = max_wait_time - elapsed
             logger.debug(
                 f"Crawl job {job_id} status: {current_status}, "
                 f"waiting... ({remaining:.0f}s remaining)"
             )
-            time.sleep(poll_interval)
+            
+            # Don't sleep past the timeout
+            if remaining <= 0:
+                break
+            time.sleep(min(poll_interval, remaining))
 
         # Timeout reached
         logger.warning(

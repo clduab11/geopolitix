@@ -1,7 +1,7 @@
 """Tests for Intelligence Aggregator."""
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from src.intelligence.aggregator import IntelligenceAggregator
 
 

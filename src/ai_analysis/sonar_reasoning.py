@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
+from src.constants import MAX_ARTICLES_FOR_SYNTHESIS
 from src.data_sources.base import BaseAPIClient
 from src.utils.cache import cache_response
 from src.utils.logger import get_logger
@@ -11,7 +12,6 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 # Constants for content limits and processing
-MAX_ARTICLES_FOR_SYNTHESIS = 10  # Maximum articles to process for synthesis
 SUMMARY_CONTENT_LIMIT = 200  # Character limit for data source summaries
 
 

@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.ai_analysis.sonar_reasoning import SonarReasoningClient
+from src.constants import MAX_ARTICLES_FOR_SYNTHESIS
 from src.data_sources.exa_search import ExaSearchClient
 from src.data_sources.firecrawl import FirecrawlClient
 from src.data_sources.newsapi import NewsAPIClient
@@ -16,7 +17,6 @@ from src.utils.logger import get_logger
 logger = get_logger(__name__)
 
 # Constants
-MAX_ARTICLES_FOR_SYNTHESIS = 10  # Maximum articles to process for AI synthesis
 MAX_ALERTS = 20  # Maximum alerts to return
 DEFAULT_RISK_SCORE = 50.0  # Default risk score when none is available
 
@@ -512,16 +512,19 @@ class IntelligenceAggregator:
 
         for article in articles[:MAX_ALERTS]:
             # Normalize source field - handle both Tavily and NewsAPI formats
-            source = article.get("source", {})
-            if isinstance(source, dict):
-                # NewsAPI format: {'id': ..., 'name': ...}
-                source_name = source.get("name", "Unknown")
-            elif isinstance(source, str):
-                # Already a string
-                source_name = source
-            else:
-                # Tavily format: uses 'domain' field
+            # Check for Tavily format first (uses 'domain' field)
+            if "domain" in article:
                 source_name = article.get("domain", "Unknown")
+            else:
+                # Check NewsAPI format: {'id': ..., 'name': ...}
+                source = article.get("source", {})
+                if isinstance(source, dict) and source:
+                    source_name = source.get("name", "Unknown")
+                elif isinstance(source, str):
+                    # Already a string
+                    source_name = source
+                else:
+                    source_name = "Unknown"
 
             alerts.append(
                 {

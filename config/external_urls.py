@@ -18,10 +18,10 @@ GOVERNMENT_URLS: Dict[str, List[str]] = {
         "https://www.gouvernement.fr/en",
     ],
     "CN": [
-        "http://english.www.gov.cn/",
+        "https://english.www.gov.cn/",
     ],
     "RU": [
-        "http://en.kremlin.ru/",
+        "https://en.kremlin.ru/",
     ],
 }
 
@@ -37,12 +37,15 @@ DEFENSE_MINISTRY_URLS: Dict[str, List[str]] = {
         "https://www.bmvg.de/en",
     ],
     "FR": [
+        # Note: /english path provides English language content for international readers
         "https://www.defense.gouv.fr/english",
     ],
     "CN": [
-        "http://eng.mod.gov.cn/",
+        # Note: Chinese defense ministry English portal
+        "https://eng.mod.gov.cn/",
     ],
     "RU": [
+        # Note: Russian defense ministry English portal
         "https://eng.mil.ru/en/index.htm",
     ],
 }
