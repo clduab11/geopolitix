@@ -23,8 +23,11 @@ class Settings:
     PERPLEXITY_FINANCE_ENABLED: bool = config(
         "PERPLEXITY_FINANCE_ENABLED", default=True, cast=bool
     )
-    PERPLEXITY_SONAR_MODEL: str = config(
-        "PERPLEXITY_SONAR_MODEL", default="sonar-reasoning-pro"
+    PERPLEXITY_FINANCE_MODEL: str = config(
+        "PERPLEXITY_FINANCE_MODEL", default="sonar-pro"
+    )
+    PERPLEXITY_REASONING_MODEL: str = config(
+        "PERPLEXITY_REASONING_MODEL", default="sonar-reasoning-pro"
     )
 
     TAVILY_API_KEY: str = config("TAVILY_API_KEY", default="")

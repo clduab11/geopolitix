@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.ai_analysis.sonar_reasoning import SonarReasoningClient
+from src.constants import MAX_ARTICLES_FOR_SYNTHESIS
 from src.data_sources.exa_search import ExaSearchClient
 from src.data_sources.firecrawl import FirecrawlClient
 from src.data_sources.newsapi import NewsAPIClient
@@ -14,6 +15,10 @@ from src.utils.cache import cache_response
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+# Constants
+MAX_ALERTS = 20  # Maximum alerts to return
+DEFAULT_RISK_SCORE = 50.0  # Default risk score when none is available
 
 
 class IntelligenceAggregator:
@@ -108,6 +113,7 @@ class IntelligenceAggregator:
                     results[key] = {"error": str(e)}
 
         # 6. AI synthesis (Sonar Reasoning) - Run after gathering data
+        # Split into separate try-except blocks to preserve partial successes
         try:
             articles = results.get("newsapi_data", {}).get("articles", [])
             if articles:
@@ -115,15 +121,19 @@ class IntelligenceAggregator:
                     articles=articles,
                     country=country,
                 )
+        except Exception as e:
+            logger.exception(f"Error in news synthesis for {country}")
+            results["ai_synthesis"] = {"error": str(e)}
 
+        try:
             # Deep dive analysis
             results["deep_analysis"] = self.sonar.deep_dive_analysis(
                 country=country,
                 focus_areas=["political", "economic", "security"],
             )
         except Exception as e:
-            logger.error(f"Error in AI synthesis: {e}")
-            results["ai_synthesis"] = {"error": str(e)}
+            logger.exception(f"Error in deep dive analysis for {country}")
+            results["deep_analysis"] = {"error": str(e)}
 
         return {
             "country": country,
@@ -180,10 +190,29 @@ class IntelligenceAggregator:
                 num_results=10,
             )
 
-            # Collect results
-            tavily_results = tavily_future.result(timeout=15)
-            newsapi_results = newsapi_future.result(timeout=15)
-            exa_results = exa_future.result(timeout=15)
+            # Collect results with individual error handling
+            # Don't fail entire method if one source times out
+            tavily_results = {}
+            newsapi_results = {}
+            exa_results = {}
+
+            try:
+                tavily_results = tavily_future.result(timeout=15)
+            except Exception as e:
+                logger.exception("Error getting Tavily breaking news results")
+                tavily_results = {"error": str(e), "results": []}
+
+            try:
+                newsapi_results = newsapi_future.result(timeout=15)
+            except Exception as e:
+                logger.exception("Error getting NewsAPI breaking news results")
+                newsapi_results = {"error": str(e), "articles": []}
+
+            try:
+                exa_results = exa_future.result(timeout=15)
+            except Exception as e:
+                logger.exception("Error getting Exa breaking news results")
+                exa_results = {"error": str(e), "similar_events": []}
 
         # Prioritize alerts using AI
         all_articles = []
@@ -253,6 +282,7 @@ class IntelligenceAggregator:
     def multi_source_search(
         self,
         query: str,
+        country: Optional[str] = None,
         include_financial: bool = False,
     ) -> Dict[str, Any]:
         """
@@ -260,7 +290,10 @@ class IntelligenceAggregator:
 
         Args:
             query: Search query
-            include_financial: Include financial analysis
+            country: Optional country name for financial analysis.
+                If not provided and include_financial=True, financial
+                analysis will be skipped.
+            include_financial: Include financial analysis (requires country parameter)
 
         Returns:
             Combined search results
@@ -281,11 +314,17 @@ class IntelligenceAggregator:
                 ),
             }
 
-            if include_financial:
+            # Only include financial analysis if country is specified
+            if include_financial and country:
                 futures["finance"] = executor.submit(
                     self.perplexity_finance.get_market_impact,
-                    country=query,
-                    event_description=None,
+                    country=country,
+                    event_description=query,
+                )
+            elif include_financial and not country:
+                logger.warning(
+                    "Financial analysis requested but no country specified. "
+                    "Skipping financial integration."
                 )
 
             # Collect results
@@ -366,7 +405,7 @@ class IntelligenceAggregator:
         """
         # Get financial data
         financial_correlation = (
-            self.perplexity_finance.calculate_financial_risk_correlation(
+            self.perplexity_finance.get_financial_data_for_risk_score(
                 country=country,
                 risk_score=risk_score,
             )
@@ -462,17 +501,41 @@ class IntelligenceAggregator:
         self,
         articles: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
-        """Convert articles to alert format."""
+        """
+        Convert articles to alert format.
+
+        Normalizes different article structures from:
+        - Tavily: uses 'domain' field
+        - NewsAPI: uses 'source' dictionary with 'name' key
+        """
         alerts = []
 
-        for article in articles[:20]:  # Limit to 20
+        for article in articles[:MAX_ALERTS]:
+            # Normalize source field - handle both Tavily and NewsAPI formats
+            # Check for Tavily format first (uses 'domain' field)
+            if "domain" in article:
+                source_name = article.get("domain", "Unknown")
+            else:
+                # Check NewsAPI format: {'id': ..., 'name': ...}
+                source = article.get("source", {})
+                if isinstance(source, dict) and source:
+                    source_name = source.get("name", "Unknown")
+                elif isinstance(source, str):
+                    # Already a string
+                    source_name = source
+                else:
+                    source_name = "Unknown"
+
             alerts.append(
                 {
                     "country": article.get("country", "Unknown"),
                     "alert_type": "news",
-                    "risk_score": 50.0,  # Default
+                    "risk_score": article.get("risk_score", DEFAULT_RISK_SCORE),
                     "title": article.get("title", ""),
-                    "source": article.get("source", {}),
+                    "source": source_name,
+                    "url": article.get("url", ""),
+                    "published_at": article.get("published_at")
+                    or article.get("publishedAt", ""),
                 }
             )
 
