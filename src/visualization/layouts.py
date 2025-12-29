@@ -3,6 +3,8 @@
 import dash_bootstrap_components as dbc
 from dash import dcc, html
 
+from src.visualization.finance_layouts import create_finance_tab
+
 # Exposure type options for company exposure assessment
 EXPOSURE_TYPE_OPTIONS = [
     {"label": "Manufacturing", "value": "manufacturing"},
@@ -49,6 +51,11 @@ def create_layout() -> html.Div:
                                 label="Company Exposure",
                                 tab_id="tab-exposure",
                             ),
+                            dbc.Tab(
+                                create_finance_tab(),
+                                label="Finance",
+                                tab_id="tab-finance",
+                            ),
                         ],
                         id="main-tabs",
                         active_tab="tab-overview",
@@ -67,6 +74,7 @@ def create_layout() -> html.Div:
             dcc.Store(id="risk-data-store"),
             dcc.Store(id="scenario-store"),
             dcc.Store(id="exposure-store"),
+            dcc.Store(id="finance-data-store"),
         ]
     )
 
