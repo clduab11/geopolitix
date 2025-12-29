@@ -1,6 +1,8 @@
 """Dash callbacks for the Finance Dashboard."""
 
 from typing import Any, Dict, List, Optional, Tuple
+import csv
+import io
 import json
 
 from dash import Input, Output, State, callback_context, no_update, html, dcc
@@ -407,14 +409,10 @@ def register_finance_callbacks(app):
 
             if statements:
                 # Convert to CSV format
-                import csv
-                import io
-
                 output = io.StringIO()
-                if statements:
-                    writer = csv.DictWriter(output, fieldnames=statements[0].keys())
-                    writer.writeheader()
-                    writer.writerows(statements)
+                writer = csv.DictWriter(output, fieldnames=statements[0].keys())
+                writer.writeheader()
+                writer.writerows(statements)
 
                 return dcc.send_string(
                     output.getvalue(),
