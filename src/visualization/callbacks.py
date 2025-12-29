@@ -22,6 +22,7 @@ from src.visualization.charts import (
     create_exposure_pie,
 )
 from src.visualization.layouts import create_summary_card, create_alert_item
+from src.visualization.finance_callbacks import register_finance_callbacks
 from config.risk_thresholds import RiskThresholds
 from src.utils.logger import get_logger
 
@@ -537,5 +538,8 @@ def register_callbacks(app):
             )
 
         return summary, pie_fig, bar_fig, actions
+
+    # Register finance callbacks
+    register_finance_callbacks(app)
 
     return app

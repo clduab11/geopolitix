@@ -132,3 +132,244 @@
         break-inside: avoid;
     }
 }
+
+/* ============================================ */
+/* FINANCE MODULE STYLES                        */
+/* ============================================ */
+
+/* Finance search header */
+.finance-search-header {
+    padding: 1rem 0;
+}
+
+.finance-ticker-input {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+    font-size: 1rem;
+}
+
+/* Autocomplete dropdown */
+.autocomplete-dropdown {
+    position: relative;
+    z-index: 1000;
+}
+
+.autocomplete-dropdown .list-group {
+    position: absolute;
+    width: 100%;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: white;
+    border-radius: 4px;
+    margin-top: 2px;
+}
+
+.autocomplete-item {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+}
+
+.autocomplete-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Stock price display */
+.stock-price {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stock-change {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.stock-change.text-success {
+    color: #2ecc71 !important;
+}
+
+.stock-change.text-danger {
+    color: #e74c3c !important;
+}
+
+/* Chart period selector */
+.chart-period-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.chart-period-selector .btn {
+    flex: 1;
+    min-width: 40px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Key metrics grid */
+.key-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.metric-item {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.25rem;
+}
+
+.metric-value {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* AI Analysis content */
+.ai-analysis-content {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.ai-analysis-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+/* Citations list */
+.citations-list {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.citation-link {
+    font-size: 0.8rem;
+    text-decoration: none;
+    color: #3498db;
+    word-break: break-all;
+}
+
+.citation-link:hover {
+    text-decoration: underline;
+}
+
+.citation-number {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Follow-up section */
+.followup-input {
+    resize: none;
+}
+
+.followup-send-btn {
+    align-self: stretch;
+}
+
+/* Statement tables */
+.statement-table .table {
+    font-size: 0.8rem;
+    margin-bottom: 0;
+}
+
+.statement-table th {
+    font-weight: 600;
+    color: #6c757d;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.statement-table td {
+    font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+    white-space: nowrap;
+}
+
+/* Peer comparison table */
+.peer-table .table {
+    font-size: 0.85rem;
+}
+
+/* News feed */
+.news-feed {
+    font-size: 0.875rem;
+}
+
+.news-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+/* Financial colors - semantic */
+.text-gain {
+    color: #2ecc71 !important;
+}
+
+.text-loss {
+    color: #e74c3c !important;
+}
+
+.bg-gain {
+    background-color: rgba(46, 204, 113, 0.1) !important;
+}
+
+.bg-loss {
+    background-color: rgba(231, 76, 60, 0.1) !important;
+}
+
+/* Model description */
+#model-description {
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Finance tab responsive */
+@media (max-width: 992px) {
+    .stock-price {
+        font-size: 2rem;
+    }
+
+    .key-metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ai-analysis-content {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 576px) {
+    .stock-price {
+        font-size: 1.75rem;
+    }
+
+    .key-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-period-selector .btn {
+        padding: 0.2rem 0.25rem;
+        font-size: 0.65rem;
+    }
+}

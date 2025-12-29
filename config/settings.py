@@ -49,6 +49,12 @@ class Settings:
         "FIRECRAWL_WAIT_FOR_SELECTOR", default=""
     )
 
+    # Financial Modeling Prep API
+    FMP_API_KEY: str = config("FMP_API_KEY", default="")
+    FMP_BASE_URL: str = config(
+        "FMP_BASE_URL", default="https://financialmodelingprep.com/api/v3"
+    )
+
     # Cache Settings
     CACHE_TTL_MINUTES: int = config("CACHE_TTL_MINUTES", default=15, cast=int)
     CACHE_MAX_SIZE: int = config("CACHE_MAX_SIZE", default=1000, cast=int)
