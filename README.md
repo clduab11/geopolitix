@@ -13,13 +13,14 @@ Real-time geopolitical risk analysis dashboard designed for Chief Geopolitical O
 
 ### AI & Advanced Search Integrations ⭐ NEW
 - **Perplexity Finance**: Real-time financial market intelligence and geopolitical-financial correlation analysis
+- **Finance Dashboard**: Stock analysis, financial statements, and AI-powered insights with Perplexity Sonar
 - **Sonar Reasoning Pro**: Advanced AI-powered deep analysis, trend identification, and executive briefings
 - **Tavily Search**: Real-time web search optimized for breaking news and event validation
 - **Exa AI**: Neural/semantic search for discovering expert analysis and historical precedents
 - **Firecrawl**: Deep web scraping for monitoring official government and international organization sources
 - **Intelligence Aggregator**: Unified orchestration of all AI services for comprehensive multi-source analysis
 
-See [AI_INTEGRATIONS.md](docs/AI_INTEGRATIONS.md) for complete documentation.
+See [AI_INTEGRATIONS.md](docs/AI_INTEGRATIONS.md) and [FINANCE_MODULE.md](docs/FINANCE_MODULE.md) for complete documentation.
 
 ## Quick Start
 

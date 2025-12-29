@@ -10,6 +10,8 @@ This document describes the data sources and API integrations used by GEOPOLITIX
 | NewsAPI | News | API Key | 100/day (free) |
 | World Bank | Indicators | None | 500/day |
 | ACLED | Conflicts | API Key + Email | 10,000/month |
+| Perplexity | AI Analysis | API Key | 5 req/min (free) |
+| FMP | Financial Data | API Key | 250/day (free) |
 
 ## GDELT Project API
 
@@ -310,12 +312,145 @@ def my_function():
     pass
 ```
 
+## Perplexity Sonar API
+
+**Base URL**: `https://api.perplexity.ai`
+
+### Authentication
+
+Use Bearer token authentication:
+```
+Authorization: Bearer your_api_key
+```
+
+### Chat Completions
+
+```
+POST /chat/completions
+```
+
+Request Body:
+```json
+{
+  "model": "sonar-pro",
+  "messages": [
+    {"role": "system", "content": "You are a financial analyst."},
+    {"role": "user", "content": "Analyze AAPL stock performance."}
+  ],
+  "temperature": 0.2,
+  "search_domain_filter": ["sec.gov", "bloomberg.com"]
+}
+```
+
+Response:
+```json
+{
+  "choices": [
+    {
+      "message": {
+        "content": "Apple (AAPL) is currently trading at..."
+      }
+    }
+  ],
+  "citations": ["https://sec.gov/...", "https://bloomberg.com/..."],
+  "usage": {
+    "prompt_tokens": 150,
+    "completion_tokens": 200,
+    "total_tokens": 350
+  }
+}
+```
+
+### Available Models
+
+| Model | Use Case |
+|-------|----------|
+| `sonar` | Quick factual queries |
+| `sonar-pro` | Complex financial analysis |
+| `sonar-deep-research` | Comprehensive reports (30+ min) |
+
+Example:
+```python
+from src.data_sources.perplexity_api import PerplexityClient
+
+client = PerplexityClient()
+result = client.analyze_stock("AAPL", analysis_type="overview")
+print(result["content"])
+print(result["citations"])
+```
+
+## Financial Modeling Prep API
+
+**Base URL**: `https://financialmodelingprep.com/api/v3`
+
+### Authentication
+
+Add API key as query parameter:
+```
+?apikey=your_api_key
+```
+
+### Endpoints Used
+
+#### Stock Quote
+```
+GET /quote/{symbol}?apikey={key}
+```
+
+Response:
+```json
+[{
+  "symbol": "AAPL",
+  "name": "Apple Inc.",
+  "price": 150.50,
+  "change": 2.50,
+  "changesPercentage": 1.69,
+  "marketCap": 2500000000000,
+  "pe": 28.5,
+  "volume": 50000000
+}]
+```
+
+#### Company Profile
+```
+GET /profile/{symbol}?apikey={key}
+```
+
+#### Historical Prices
+```
+GET /historical-price-full/{symbol}?apikey={key}
+```
+
+#### Financial Statements
+```
+GET /income-statement/{symbol}?period={annual|quarter}&limit=5&apikey={key}
+GET /balance-sheet-statement/{symbol}?period={annual|quarter}&limit=5&apikey={key}
+GET /cash-flow-statement/{symbol}?period={annual|quarter}&limit=5&apikey={key}
+```
+
+#### Ticker Search
+```
+GET /search?query={query}&limit=10&apikey={key}
+```
+
+Example:
+```python
+from src.data_sources.fmp_api import FMPClient
+
+client = FMPClient()
+quote = client.get_stock_quote("AAPL")
+profile = client.get_company_profile("AAPL")
+income = client.get_income_statement("AAPL", period="annual")
+```
+
 ## Rate Limiting
 
 Respect API rate limits:
 - NewsAPI: 100 requests/day (free tier)
 - World Bank: 500 requests/day
 - ACLED: ~10,000 requests/month
+- Perplexity: 5 requests/minute (free tier)
+- FMP: 250 requests/day (free tier)
 
 Configure in `.env`:
 ```
