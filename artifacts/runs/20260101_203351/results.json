@@ -1,0 +1,10 @@
+[
+  {
+    "model": "MA(7)",
+    "metrics": {
+      "brier_score": 0.0024284327986242777,
+      "count": 5
+    },
+    "predictions_count": 5
+  }
+]

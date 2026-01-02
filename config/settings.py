@@ -12,6 +12,27 @@ class Settings:
     PORT: int = config("PORT", default=8050, cast=int)
     HOST: str = config("HOST", default="127.0.0.1")
 
+    # Feature Flags
+    ENABLE_MARKETS_LAB: bool = config("ENABLE_MARKETS_LAB", default=False, cast=bool)
+
+    # Markets Lab Providers
+    POLYMARKET_API_URL: str = config(
+        "POLYMARKET_API_URL", default="https://clob.polymarket.com"
+    )
+    POLYMARKET_GAMMA_URL: str = config(
+        "POLYMARKET_GAMMA_URL", default="https://gamma-api.polymarket.com"
+    )
+    POLYMARKET_API_KEY: str = config("POLYMARKET_API_KEY", default="")
+
+    # Markets Lab Providers
+    POLYMARKET_API_URL: str = config(
+        "POLYMARKET_API_URL", default="https://clob.polymarket.com"
+    )
+    POLYMARKET_GAMMA_URL: str = config(
+        "POLYMARKET_GAMMA_URL", default="https://gamma-api.polymarket.com"
+    )
+    POLYMARKET_API_KEY: str = config("POLYMARKET_API_KEY", default="")
+
     # API Keys - Original
     NEWSAPI_KEY: str = config("NEWSAPI_KEY", default="")
     GDELT_API_KEY: str = config("GDELT_API_KEY", default="")
@@ -45,9 +66,7 @@ class Settings:
     FIRECRAWL_ENABLE_JAVASCRIPT: bool = config(
         "FIRECRAWL_ENABLE_JAVASCRIPT", default=True, cast=bool
     )
-    FIRECRAWL_WAIT_FOR_SELECTOR: str = config(
-        "FIRECRAWL_WAIT_FOR_SELECTOR", default=""
-    )
+    FIRECRAWL_WAIT_FOR_SELECTOR: str = config("FIRECRAWL_WAIT_FOR_SELECTOR", default="")
 
     # Cache Settings
     CACHE_TTL_MINUTES: int = config("CACHE_TTL_MINUTES", default=15, cast=int)

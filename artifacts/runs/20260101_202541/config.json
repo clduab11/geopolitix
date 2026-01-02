@@ -1,0 +1,8 @@
+{
+  "symbol": "SMOKE",
+  "days": 5,
+  "models": [
+    "MA(7)",
+    "LogisticCalibrator"
+  ]
+}

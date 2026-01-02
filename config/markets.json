@@ -1,0 +1,13 @@
+{
+  "markets": {
+    "mock": {
+      "enabled": true,
+      "interval_seconds": 60
+    },
+    "polymarket": {
+      "enabled": true,
+      "interval_seconds": 300,
+      "markets_filter": "active"
+    }
+  }
+}
