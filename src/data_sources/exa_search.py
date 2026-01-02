@@ -1,6 +1,6 @@
 """Exa AI integration for neural search and semantic discovery."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -28,6 +28,7 @@ class ExaSearchClient(BaseAPIClient):
         super().__init__(
             base_url="https://api.exa.ai",
             api_key=Settings.EXA_API_KEY,
+            service_name="exa",
         )
         self.num_results = Settings.EXA_NUM_RESULTS
         self.use_autoprompt = Settings.EXA_USE_AUTOPROMPT
@@ -61,7 +62,9 @@ class ExaSearchClient(BaseAPIClient):
             Neural search results
         """
         num = num_results or self.num_results
-        autoprompt = use_autoprompt if use_autoprompt is not None else self.use_autoprompt
+        autoprompt = (
+            use_autoprompt if use_autoprompt is not None else self.use_autoprompt
+        )
 
         payload = {
             "query": query,
@@ -81,7 +84,7 @@ class ExaSearchClient(BaseAPIClient):
                 "results": response["results"],
                 "autoprompt_string": response.get("autopromptString"),
                 "total_results": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_search_response(query)
@@ -131,7 +134,7 @@ class ExaSearchClient(BaseAPIClient):
                 "event": event_description,
                 "similar_events": results_with_scores,
                 "count": len(results_with_scores),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"event": event_description, "similar_events": [], "count": 0}
@@ -178,7 +181,7 @@ class ExaSearchClient(BaseAPIClient):
                 "expert_content": response["results"],
                 "sources": self._extract_unique_sources(response["results"]),
                 "count": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"topic": topic, "expert_content": [], "count": 0}
@@ -199,8 +202,8 @@ class ExaSearchClient(BaseAPIClient):
         Returns:
             Emerging narratives and trends
         """
-        end_date = datetime.utcnow().isoformat()
-        start_date = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        end_date = datetime.now(timezone.utc).isoformat()
+        start_date = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
 
         payload = {
             "query": f"Emerging geopolitical narratives and trends in {region}",
@@ -222,7 +225,7 @@ class ExaSearchClient(BaseAPIClient):
                 "time_period": f"{days} days",
                 "narratives": narratives,
                 "total_sources": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"region": region, "narratives": [], "total_sources": 0}
@@ -256,7 +259,7 @@ class ExaSearchClient(BaseAPIClient):
             return {
                 "recommendations": response["results"],
                 "count": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"recommendations": [], "count": 0}
@@ -301,7 +304,7 @@ class ExaSearchClient(BaseAPIClient):
                 "topic": topic,
                 "research_papers": response["results"],
                 "count": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"topic": topic, "research_papers": [], "count": 0}
@@ -346,7 +349,7 @@ class ExaSearchClient(BaseAPIClient):
                 "query": query,
                 "policy_documents": response["results"],
                 "count": len(response["results"]),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"query": query, "policy_documents": [], "count": 0}
@@ -369,14 +372,16 @@ class ExaSearchClient(BaseAPIClient):
 
         # Search for each event and find similar ones
         for event in events:
-            similar = self.find_similar_events(event, num_results=SIMILARITY_CLUSTER_RESULTS)
+            similar = self.find_similar_events(
+                event, num_results=SIMILARITY_CLUSTER_RESULTS
+            )
             clusters[event] = similar.get("similar_events", [])
 
         return {
             "original_events": events,
             "clusters": clusters,
             "total_clusters": len(clusters),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _add_similarity_scores(
@@ -422,7 +427,7 @@ class ExaSearchClient(BaseAPIClient):
         recent = []
         older = []
 
-        cutoff = datetime.utcnow() - timedelta(days=RECENT_CUTOFF_DAYS)
+        cutoff = datetime.now(timezone.utc) - timedelta(days=RECENT_CUTOFF_DAYS)
 
         for result in results:
             pub_date = result.get("publishedDate")
@@ -464,5 +469,5 @@ class ExaSearchClient(BaseAPIClient):
             "query": query,
             "results": [],
             "total_results": 0,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }

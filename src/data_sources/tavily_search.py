@@ -22,6 +22,7 @@ class TavilySearchClient(BaseAPIClient):
         super().__init__(
             base_url="https://api.tavily.com",
             api_key=Settings.TAVILY_API_KEY,
+            service_name="tavily",
         )
         self.search_depth = Settings.TAVILY_SEARCH_DEPTH
         self.max_results = Settings.TAVILY_MAX_RESULTS

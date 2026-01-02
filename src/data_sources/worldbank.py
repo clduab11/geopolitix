@@ -1,6 +1,6 @@
 """World Bank API integration for governance indicators."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import pandas as pd
 
@@ -92,7 +92,7 @@ class WorldBankClient(BaseAPIClient):
                         "indicator": "Political Stability",
                         "value": entry.get("value"),
                         "year": entry.get("date"),
-                        "query_time": datetime.utcnow().isoformat(),
+                        "query_time": datetime.now(timezone.utc).isoformat(),
                     }
 
         return {
@@ -100,7 +100,7 @@ class WorldBankClient(BaseAPIClient):
             "indicator": "Political Stability",
             "value": None,
             "year": None,
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()
@@ -120,7 +120,7 @@ class WorldBankClient(BaseAPIClient):
         results = {
             "country_code": country_code,
             "indicators": {},
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
         for code, name in self.WGI_INDICATORS.items():

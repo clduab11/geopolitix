@@ -1,6 +1,6 @@
 """Perplexity Sonar Reasoning Pro integration for deep geopolitical analysis."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -23,6 +23,7 @@ class SonarReasoningClient(BaseAPIClient):
         super().__init__(
             base_url="https://api.perplexity.ai",
             api_key=Settings.PERPLEXITY_API_KEY,
+            service_name="perplexity",
         )
         self.model = Settings.PERPLEXITY_REASONING_MODEL
 
@@ -80,7 +81,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "analysis": choice["message"]["content"],
                 "reasoning_chain": self._extract_reasoning(choice),
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_analysis(country)
@@ -135,7 +136,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "country": country,
                 "article_count": len(articles),
                 "summary": response["choices"][0]["message"]["content"],
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"country": country, "summary": "", "article_count": 0}
@@ -185,7 +186,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "time_period": time_period,
                 "trends": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"time_period": time_period, "trends": ""}
@@ -238,7 +239,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "scenario": scenario_description,
                 "validation": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"scenario": scenario_description, "validation": ""}
@@ -292,7 +293,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "comparison_factors": comparison_factors,
                 "analysis": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"countries": countries, "analysis": ""}
@@ -338,7 +339,7 @@ class SonarReasoningClient(BaseAPIClient):
             return {
                 "original_count": len(alerts),
                 "prioritization": response["choices"][0]["message"]["content"],
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"original_count": len(alerts), "prioritization": ""}
@@ -387,7 +388,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "event": event,
                 "causal_analysis": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"event": event, "causal_analysis": ""}
@@ -415,9 +416,7 @@ class SonarReasoningClient(BaseAPIClient):
             else "Global coverage"
         )
 
-        data_str = (
-            self._summarize_data_sources(data_summary) if data_summary else ""
-        )
+        data_str = self._summarize_data_sources(data_summary) if data_summary else ""
 
         payload = {
             "model": self.model,
@@ -445,7 +444,7 @@ class SonarReasoningClient(BaseAPIClient):
                 "focus_regions": focus_regions,
                 "brief": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "generated_at": datetime.utcnow().isoformat(),
+                "generated_at": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"timeframe": timeframe, "brief": ""}
@@ -505,5 +504,5 @@ class SonarReasoningClient(BaseAPIClient):
         return {
             "country": country,
             "analysis": "",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }

@@ -12,19 +12,34 @@ logger = get_api_logger()
 
 
 class BaseAPIClient:
-    """Base class for all API integrations with retry logic and error handling."""
+    """Base class for all API integrations with retry logic, rate limiting, and error handling."""
 
-    def __init__(self, base_url: str, api_key: Optional[str] = None):
+    _rate_limiter = None  # Class-level rate limiter to share across instances
+
+    def __init__(
+        self,
+        base_url: str,
+        api_key: Optional[str] = None,
+        service_name: Optional[str] = None,
+    ):
         """
         Initialize the API client.
 
         Args:
             base_url: Base URL for the API
             api_key: Optional API key for authentication
+            service_name: Optional name for rate limiting
         """
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
+        self.service_name = service_name
         self.session = self._create_session()
+
+        # Lazy import to avoid circular dependencies
+        if BaseAPIClient._rate_limiter is None:
+            from src.utils.rate_limiter import RateLimiter
+
+            BaseAPIClient._rate_limiter = RateLimiter()
 
     def _create_session(self) -> requests.Session:
         """Create a requests session with retry logic."""
@@ -58,6 +73,7 @@ class BaseAPIClient:
         endpoint: str,
         params: Optional[Dict[str, Any]] = None,
         timeout: Optional[int] = None,
+        check_rate_limit: bool = True,
     ) -> Optional[Dict[str, Any]]:
         """
         Make a GET request to the API.
@@ -163,5 +179,15 @@ class BaseAPIClient:
                 timeout=5,
             )
             return response.status_code < 500
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Health check failed: {e}")
             return False
+
+    @property
+    def rate_limiter(self):
+        """Access the rate limiter instance."""
+        if self._rate_limiter is None:
+            from src.utils.rate_limiter import RateLimiter
+
+            BaseAPIClient._rate_limiter = RateLimiter()
+        return self._rate_limiter

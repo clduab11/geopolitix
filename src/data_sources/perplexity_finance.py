@@ -1,6 +1,6 @@
 """Perplexity Finance API integration for financial market intelligence."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -19,6 +19,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         super().__init__(
             base_url="https://api.perplexity.ai",
             api_key=Settings.PERPLEXITY_API_KEY,
+            service_name="perplexity_finance",
         )
         self.finance_enabled = Settings.PERPLEXITY_FINANCE_ENABLED
         self.model = Settings.PERPLEXITY_FINANCE_MODEL
@@ -77,7 +78,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "event": event_description,
                 "analysis": content,
                 "citations": citations,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_market_response(country)
@@ -128,7 +129,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "sector": sector,
                 "market_data": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_market_response(country)
@@ -179,7 +180,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "currency_code": currency_code,
                 "forex_data": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_market_response(country)
@@ -232,7 +233,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "countries": countries,
                 "price_data": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"commodity": commodity_type, "data": {}}
@@ -279,7 +280,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "country": country,
                 "bond_data": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_market_response(country)
@@ -301,9 +302,7 @@ class PerplexityFinanceClient(BaseAPIClient):
         if not self.finance_enabled:
             return {"sentiment": "neutral", "data": {}}
 
-        context_part = (
-            f"given {geopolitical_context}" if geopolitical_context else ""
-        )
+        context_part = f"given {geopolitical_context}" if geopolitical_context else ""
         query = (
             f"Cryptocurrency market sentiment and major coin performance "
             f"{context_part} in current geopolitical environment"
@@ -329,7 +328,7 @@ class PerplexityFinanceClient(BaseAPIClient):
                 "context": geopolitical_context,
                 "crypto_data": response["choices"][0]["message"]["content"],
                 "citations": response.get("citations", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"sentiment": "neutral", "data": {}}
@@ -374,7 +373,7 @@ class PerplexityFinanceClient(BaseAPIClient):
             "normalized_risk": round(normalized_risk, 3),
             "market_impact": market_impact,
             "currency_impact": currency_impact,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _empty_market_response(self, country: str) -> Dict[str, Any]:
@@ -382,5 +381,5 @@ class PerplexityFinanceClient(BaseAPIClient):
         return {
             "country": country,
             "data": {},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }

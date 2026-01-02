@@ -1,6 +1,6 @@
 """Unified Intelligence Aggregator - Orchestrates all AI and search services."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -139,7 +139,7 @@ class IntelligenceAggregator:
             "country": country,
             "analysis_type": "comprehensive",
             "data_sources": results,
-            "generated_at": datetime.utcnow().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=5)
@@ -230,7 +230,7 @@ class IntelligenceAggregator:
             "newsapi_results": newsapi_results,
             "exa_results": exa_results,
             "prioritized_alerts": prioritized,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=60)
@@ -339,7 +339,7 @@ class IntelligenceAggregator:
         return {
             "query": query,
             "sources": results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def validate_event_multi_source(
@@ -385,7 +385,7 @@ class IntelligenceAggregator:
             "tavily_validation": tavily_validation,
             "historical_precedents": exa_results,
             "ai_analysis": validation_analysis,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def financial_geopolitical_correlation(
@@ -412,13 +412,9 @@ class IntelligenceAggregator:
         )
 
         # Get market-specific data
-        stock_impact = self.perplexity_finance.get_stock_market_impact(
-            country=country
-        )
+        stock_impact = self.perplexity_finance.get_stock_market_impact(country=country)
 
-        currency_impact = self.perplexity_finance.get_currency_impact(
-            country=country
-        )
+        currency_impact = self.perplexity_finance.get_currency_impact(country=country)
 
         # AI analysis of correlation
         ai_correlation = self.sonar.causal_inference(
@@ -436,7 +432,7 @@ class IntelligenceAggregator:
             "stock_impact": stock_impact,
             "currency_impact": currency_impact,
             "ai_analysis": ai_correlation,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def track_official_sources(
@@ -459,9 +455,7 @@ class IntelligenceAggregator:
         # Monitor government sites
         for country in countries:
             country_code = self._get_country_code(country)
-            gov_data = self.firecrawl.monitor_government_site(
-                country_code=country_code
-            )
+            gov_data = self.firecrawl.monitor_government_site(country_code=country_code)
             results[country] = gov_data
 
         # Monitor international organizations
@@ -478,7 +472,7 @@ class IntelligenceAggregator:
         return {
             "countries": countries,
             "official_sources": results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _get_country_code(self, country: str) -> str:

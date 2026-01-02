@@ -1,6 +1,6 @@
 """GDELT Project API integration for global event data."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from config.api_endpoints import APIEndpoints
@@ -16,7 +16,10 @@ class GDELTClient(BaseAPIClient):
 
     def __init__(self):
         """Initialize GDELT client."""
-        super().__init__(APIEndpoints.GDELT_BASE_URL)
+        super().__init__(
+            APIEndpoints.GDELT_BASE_URL,
+            service_name="gdelt",
+        )
 
     @cache_response()
     def get_country_mentions(
@@ -58,14 +61,14 @@ class GDELTClient(BaseAPIClient):
                 "country": country,
                 "article_count": len(response["articles"]),
                 "articles": response["articles"],
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
             "country": country,
             "article_count": 0,
             "articles": [],
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()
@@ -123,7 +126,7 @@ class GDELTClient(BaseAPIClient):
                 "conflict_articles": len(articles),
                 "average_tone": round(avg_tone, 2),
                 "articles": articles[:20],  # Return top 20
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
@@ -131,7 +134,7 @@ class GDELTClient(BaseAPIClient):
             "conflict_articles": 0,
             "average_tone": 0,
             "articles": [],
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()
@@ -177,7 +180,7 @@ class GDELTClient(BaseAPIClient):
                 "positive_articles": positive_count,
                 "negative_articles": negative_count,
                 "sentiment_ratio": positive_count / max(negative_count, 1),
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
@@ -187,7 +190,7 @@ class GDELTClient(BaseAPIClient):
             "positive_articles": 0,
             "negative_articles": 0,
             "sentiment_ratio": 1.0,
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     def calculate_news_risk_score(self, country: str) -> float:

@@ -1,6 +1,6 @@
 """NewsAPI integration for news aggregation and sentiment analysis."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
 from textblob import TextBlob
 
@@ -22,6 +22,7 @@ class NewsAPIClient(BaseAPIClient):
         super().__init__(
             APIEndpoints.NEWSAPI_BASE_URL,
             api_key=Settings.NEWSAPI_KEY,
+            service_name="newsapi",
         )
 
     def _get_headers(self) -> Dict[str, str]:
@@ -51,7 +52,9 @@ class NewsAPIClient(BaseAPIClient):
         Returns:
             Dictionary with articles and metadata
         """
-        from_date = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+        from_date = (datetime.now(timezone.utc) - timedelta(days=days)).strftime(
+            "%Y-%m-%d"
+        )
 
         params = {
             "q": country,
@@ -81,14 +84,14 @@ class NewsAPIClient(BaseAPIClient):
                 "country": country,
                 "total_results": response.get("totalResults", 0),
                 "articles": analyzed_articles,
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
             "country": country,
             "total_results": 0,
             "articles": [],
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()
@@ -109,7 +112,9 @@ class NewsAPIClient(BaseAPIClient):
         Returns:
             Dictionary with articles and metadata
         """
-        from_date = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+        from_date = (datetime.now(timezone.utc) - timedelta(days=days)).strftime(
+            "%Y-%m-%d"
+        )
         query = " OR ".join(keywords)
 
         params = {
@@ -127,14 +132,14 @@ class NewsAPIClient(BaseAPIClient):
                 "keywords": keywords,
                 "total_results": response.get("totalResults", 0),
                 "articles": response.get("articles", []),
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
             "keywords": keywords,
             "total_results": 0,
             "articles": [],
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     def _analyze_sentiment(self, text: str) -> Dict[str, float]:
@@ -241,7 +246,7 @@ class NewsAPIClient(BaseAPIClient):
                         "article_count": sentiment["article_count"],
                         "risk_score": sentiment["risk_score"],
                         "alert_type": "negative_sentiment",
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                 )
 

@@ -1,7 +1,7 @@
 """Scenario modeling for geopolitical risk simulation."""
 
 from typing import Any, Dict, List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from config.risk_thresholds import RiskThresholds
@@ -96,7 +96,7 @@ class ScenarioModeler:
         Returns:
             Scenario dictionary
         """
-        timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
         scenario = {
             "id": f"scenario_{len(self.scenarios) + 1}_{timestamp}",
             "name": name,
@@ -106,7 +106,7 @@ class ScenarioModeler:
             "severity": min(max(severity, 0.1), 2.0),
             "duration_months": duration_months,
             "parameters": parameters or {},
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
         self.scenarios.append(scenario)

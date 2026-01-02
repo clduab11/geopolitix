@@ -36,6 +36,10 @@ class TestRiskScorer:
         assert "composite_score" in result
         assert "factors" in result
         assert "risk_level" in result
+        assert "prediction" in result
+        assert "next_score" in result["prediction"]
+        assert "trend" in result["prediction"]
+        assert "signals" in result["prediction"]
         assert 0 <= result["composite_score"] <= 100
 
     @patch.object(RiskScorer, "calculate_composite_score")
@@ -59,6 +63,7 @@ class TestRiskScorer:
 
         assert isinstance(result, pd.DataFrame)
         assert len(result) == 2
+        assert "prediction" in result.columns
 
     def test_get_risk_changes(self):
         """Test risk change analysis."""

@@ -1,6 +1,6 @@
 """ACLED API integration for armed conflict data."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List
 import pandas as pd
 
@@ -44,7 +44,10 @@ class ACLEDClient(BaseAPIClient):
 
     def __init__(self):
         """Initialize ACLED client."""
-        super().__init__(APIEndpoints.ACLED_BASE_URL)
+        super().__init__(
+            APIEndpoints.ACLED_BASE_URL,
+            service_name="acled",
+        )
         self.api_key = Settings.ACLED_API_KEY
         self.email = Settings.ACLED_EMAIL
 
@@ -66,13 +69,15 @@ class ACLEDClient(BaseAPIClient):
         Returns:
             Dictionary with events and metadata
         """
-        from_date = (datetime.utcnow() - timedelta(days=days)).strftime("%Y-%m-%d")
+        from_date = (datetime.now(timezone.utc) - timedelta(days=days)).strftime(
+            "%Y-%m-%d"
+        )
 
         params = {
             "key": self.api_key,
             "email": self.email,
             "country": country,
-            "event_date": f"{from_date}|{datetime.utcnow().strftime('%Y-%m-%d')}",
+            "event_date": f"{from_date}|{datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
             "event_date_where": "BETWEEN",
             "limit": limit,
         }
@@ -90,17 +95,17 @@ class ACLEDClient(BaseAPIClient):
                 "event_count": len(events),
                 "events": events,
                 "date_range": (
-                    f"{from_date} to {datetime.utcnow().strftime('%Y-%m-%d')}"
+                    f"{from_date} to {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
                 ),
-                "query_time": datetime.utcnow().isoformat(),
+                "query_time": datetime.now(timezone.utc).isoformat(),
             }
 
         return {
             "country": country,
             "event_count": 0,
             "events": [],
-            "date_range": f"{from_date} to {datetime.utcnow().strftime('%Y-%m-%d')}",
-            "query_time": datetime.utcnow().isoformat(),
+            "date_range": f"{from_date} to {datetime.now(timezone.utc).strftime('%Y-%m-%d')}",
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()
@@ -148,7 +153,7 @@ class ACLEDClient(BaseAPIClient):
             "total_fatalities": total_fatalities,
             "event_count": len(events),
             "fatalities_by_type": fatalities_by_type,
-            "query_time": datetime.utcnow().isoformat(),
+            "query_time": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response()

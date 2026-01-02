@@ -1,7 +1,7 @@
 """Firecrawl integration for deep web scraping and content extraction."""
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from config.settings import Settings
@@ -85,7 +85,7 @@ class FirecrawlClient(BaseAPIClient):
                 "markdown": data.get("markdown", ""),
                 "html": data.get("html", "") if include_raw_html else None,
                 "metadata": data.get("metadata", {}),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return self._empty_scrape_response(url)
@@ -142,7 +142,7 @@ class FirecrawlClient(BaseAPIClient):
                 "job_id": job_id,
                 "start_url": start_url,
                 "status": "queued",
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"start_url": start_url, "status": "failed"}
@@ -169,7 +169,7 @@ class FirecrawlClient(BaseAPIClient):
                 "completed": response.get("completed", 0),
                 "total": response.get("total", 0),
                 "data": response.get("data", []),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         return {"job_id": job_id, "status": "error"}
@@ -215,7 +215,7 @@ class FirecrawlClient(BaseAPIClient):
                 f"Crawl job {job_id} status: {current_status}, "
                 f"waiting... ({remaining:.0f}s remaining)"
             )
-            
+
             # Don't sleep past the timeout
             if remaining <= 0:
                 break
@@ -230,7 +230,7 @@ class FirecrawlClient(BaseAPIClient):
             "job_id": job_id,
             "status": "timeout",
             "message": f"Polling timed out after {max_wait_time}s",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=360)
@@ -262,7 +262,7 @@ class FirecrawlClient(BaseAPIClient):
             "monitored_sites": urls,
             "results": results,
             "count": len(results),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=180)
@@ -299,7 +299,7 @@ class FirecrawlClient(BaseAPIClient):
             "url": url,
             "content": scraped.get("content", ""),
             "title": scraped.get("title", ""),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=240)
@@ -336,9 +336,7 @@ class FirecrawlClient(BaseAPIClient):
 
             if wait_for_completion and crawl_job.get("job_id"):
                 # Poll for completion
-                completed_result = self.wait_for_crawl_completion(
-                    crawl_job["job_id"]
-                )
+                completed_result = self.wait_for_crawl_completion(crawl_job["job_id"])
                 results.append(completed_result)
             else:
                 # Return job info immediately
@@ -350,7 +348,7 @@ class FirecrawlClient(BaseAPIClient):
             "results": results,
             "count": len(results),
             "completed": wait_for_completion,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=360)
@@ -385,7 +383,7 @@ class FirecrawlClient(BaseAPIClient):
         return {
             "countries": countries,
             "results": results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @cache_response(ttl_minutes=180)
@@ -418,7 +416,7 @@ class FirecrawlClient(BaseAPIClient):
             "sanctions_sources": sanctions_urls,
             "results": results,
             "count": len(results),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def detect_changes(
@@ -451,7 +449,7 @@ class FirecrawlClient(BaseAPIClient):
             "has_changed": has_changed,
             "change_percentage": change_percentage,
             "current_content": current_content,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _get_government_urls(self, country_code: str) -> List[str]:
@@ -492,5 +490,5 @@ class FirecrawlClient(BaseAPIClient):
             "url": url,
             "content": "",
             "error": "Failed to scrape",
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }

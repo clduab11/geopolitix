@@ -2,7 +2,8 @@
 
 from typing import Any, Dict, List
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timezone
+import concurrent.futures
 
 from config.risk_thresholds import RiskThresholds
 from src.data_sources.gdelt import GDELTClient
@@ -11,6 +12,10 @@ from src.data_sources.worldbank import WorldBankClient
 from src.data_sources.acled import ACLEDClient
 from src.utils.logger import get_logger
 from src.utils.transformers import country_to_iso
+from src.risk_engine.predictor import RiskPredictor
+from src.risk_engine.trends import TrendAnalyzer
+from src.risk_engine.signals import SignalDetector
+
 
 logger = get_logger(__name__)
 
@@ -25,6 +30,16 @@ class RiskScorer:
         self.worldbank = WorldBankClient()
         self.acled = ACLEDClient()
         self.weights = RiskThresholds.FACTOR_WEIGHTS
+
+        # New ML/Analysis Components
+        self.predictor = RiskPredictor()
+        self.trend_analyzer = TrendAnalyzer()
+        self.signal_detector = SignalDetector()
+
+        # New ML/Analysis Components
+        self.predictor = RiskPredictor()
+        self.trend_analyzer = TrendAnalyzer()
+        self.signal_detector = SignalDetector()
 
     def calculate_composite_score(
         self,
@@ -60,11 +75,33 @@ class RiskScorer:
         # Get risk level
         risk_level = RiskThresholds.get_risk_level(composite)
 
+        # --- New Analysis ---
+        # Mock history for now (in real app, would fetch from DB)
+        # We simulate a history that led to this point for demonstration
+        mock_history = [composite * 0.9, composite * 0.95, composite]
+
+        prediction = self.predictor.predict_next_score(mock_history)
+        trend_data = self.trend_analyzer.analyze_trend(mock_history)
+
+        current_factors = {
+            "political": political_score,
+            "economic": economic_score,
+            "security": security_score,
+            "trade": trade_score,
+            "composite": composite,
+        }
+        signals = self.signal_detector.detect_signals(current_factors, mock_history)
+
         return {
             "country": country,
             "iso_code": iso_code,
             "composite_score": round(composite, 1),
             "risk_level": risk_level,
+            "prediction": {
+                "next_score": prediction,
+                "trend": trend_data,
+                "signals": signals,
+            },
             "factors": {
                 "political": round(political_score, 1),
                 "economic": round(economic_score, 1),
@@ -72,7 +109,7 @@ class RiskScorer:
                 "trade": round(trade_score, 1),
             },
             "weights": self.weights,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     def _calculate_political_score(self, iso_code: str) -> float:
@@ -149,24 +186,34 @@ class RiskScorer:
         """
         results = []
 
-        for country in countries:
-            try:
-                score_data = self.calculate_composite_score(country)
-                results.append(
-                    {
-                        "country": score_data["country"],
-                        "iso_code": score_data["iso_code"],
-                        "composite_score": score_data["composite_score"],
-                        "risk_level": score_data["risk_level"],
-                        "political": score_data["factors"]["political"],
-                        "economic": score_data["factors"]["economic"],
-                        "security": score_data["factors"]["security"],
-                        "trade": score_data["factors"]["trade"],
-                    }
-                )
-            except Exception as e:
-                logger.error(f"Error scoring {country}: {e}")
-                continue
+        # Use parallelism to speed up batch processing
+        # Each country scoring involves multiple independent API calls, making it IO-bound
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            # Create a dictionary to map futures to countries for error handling if needed
+            future_to_country = {
+                executor.submit(self.calculate_composite_score, country): country
+                for country in countries
+            }
+
+            for future in concurrent.futures.as_completed(future_to_country):
+                country = future_to_country[future]
+                try:
+                    score_data = future.result()
+                    results.append(
+                        {
+                            "country": score_data["country"],
+                            "iso_code": score_data["iso_code"],
+                            "composite_score": score_data["composite_score"],
+                            "risk_level": score_data["risk_level"],
+                            "political": score_data["factors"]["political"],
+                            "economic": score_data["factors"]["economic"],
+                            "security": score_data["factors"]["security"],
+                            "trade": score_data["factors"]["trade"],
+                        }
+                    )
+                except Exception as e:
+                    logger.error(f"Error scoring {country}: {e}")
+                    continue
 
         return pd.DataFrame(results)
 
@@ -246,7 +293,7 @@ class RiskScorer:
                         "score": row["composite_score"],
                         "risk_level": row["risk_level"],
                         "primary_factor": self._get_primary_factor(row),
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                 )
 
